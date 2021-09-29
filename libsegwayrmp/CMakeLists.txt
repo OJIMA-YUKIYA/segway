@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(segwayrmp)
 
-# set(CMAKE_CXX_FLAGS "-std=c++98")
+set(CMAKE_CXX_FLAGS "-std=c++98")
 
 
 find_package(catkin)
