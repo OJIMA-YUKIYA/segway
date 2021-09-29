@@ -50,3 +50,8 @@ $ rosdep update
 ```sh
 ~/segway-main $ catkin_make
 ```
+```c
+int main(void) {
+return 0
+}
+```
