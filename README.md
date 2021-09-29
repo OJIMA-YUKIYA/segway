@@ -42,7 +42,7 @@ rosdep update
 ```bash
 ~/segway-main/libsegwayrmp $ make
 ```
-segwayr-main下で catkin_make によりコンパイルを行う。
+segway-main下で catkin_make によりコンパイルを行う。
 ```bash
 ~/segway-main $ catkin_make
 ```
