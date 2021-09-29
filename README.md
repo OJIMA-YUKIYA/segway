@@ -39,14 +39,14 @@ $ rosdep update
 ```
 ## コンパイル方法
 ```bash
-segway-main $ cd libsegwayrmp
+~/segway-main $ cd libsegwayrmp
 ```
 ```bash
-segway-main/libsegwayrmp $ make
+~/segway-main/libsegwayrmp $ make
 ```
 ```bash
-segway-main/libsegwayrmp $ cd ..
+~/segway-main/libsegwayrmp $ cd ..
 ```
 ```bash
-segway-main $ catkin_make
+~/segway-main$ catkin_make
 ```
