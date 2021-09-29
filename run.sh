@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./devel/lib/segway_rmp/segway_rmp_node
