@@ -37,4 +37,16 @@ $ sudo rosdep init
 ```bash
 $ rosdep update
 ```
-
+## コンパイル方法
+```bash
+segway-main $ cd libsegwayrmp
+```
+```bash
+segway-main/libsegwayrmp $ make
+```
+```bash
+segway-main/libsegwayrmp $ cd ..
+```
+```bash
+segway-main & catkin_make
+```
