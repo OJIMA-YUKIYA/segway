@@ -1,7 +1,7 @@
 # ROSで SegwayRMP200 を動かす。
 動作環境はUbuntu18.04のOSが載っているPC
 ## ROSのインストール
-以下のROSの公式サイトにROSのインストール方法が載っている。
+以下のROSの公式サイトに[ROSのインストール方法](http://wiki.ros.org/melodic/Installation/Ubuntu)が載っている。
 
 http://wiki.ros.org/melodic/Installation/Ubuntu
 
