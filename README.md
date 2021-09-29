@@ -48,5 +48,5 @@ segway-main/libsegwayrmp $ make
 segway-main/libsegwayrmp $ cd ..
 ```
 ```bash
-segway-main & catkin_make
+segway-main $ catkin_make
 ```
