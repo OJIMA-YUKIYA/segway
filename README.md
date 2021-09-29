@@ -47,6 +47,6 @@ $ rosdep update
 ```bash
 ~/segway-main/libsegwayrmp $ cd ..
 ```
-```bash
-~/segway-main$ catkin_make
+```sh
+~/segway-main $ catkin_make
 ```
