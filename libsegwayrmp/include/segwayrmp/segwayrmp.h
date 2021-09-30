@@ -752,6 +752,7 @@ private:
   double rev_to_counts_;
   double torque_to_counts_;
 
+
   // Callbacks
   SegwayStatusCallback status_callback_;
   GetTimeCallback get_time_;

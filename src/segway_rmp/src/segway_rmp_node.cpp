@@ -92,7 +92,6 @@ public:
 
         this->setupSegwayRMP();
 
-
         this->setupROSComms();
 
         // Setup keep alive timer
@@ -120,22 +119,6 @@ public:
                 ros::Duration(3).sleep();
             }
         }
-        double x;
-        int n;
-        std::chrono::system_clock::time_point  start, end;
-        while (ros::ok()) {
-            std::cout << ">>> ";
-            std::cin >> x >> n;
-            // count = 0;
-            // if (x == 0) {
-            //     break;
-            // }
-            // start = std::chrono::system_clock::now();
-            // end = start + std::chrono::seconds(n);
-            // while (std::chrono::system_clock::now() < end) {
-                this->target_linear_vel = x;
-            // }
-        }
         return;
     }
 
@@ -143,8 +126,10 @@ public:
         if (ros::ok() && this->connected) {
             ROS_INFO("Segway RMP Ready.");
             while (ros::ok() && this->connected) {
-                ros::Duration(1).sleep();
-                break;
+                // ros::Duration(1).sleep();
+                // this->target_linear_vel = 0.2;
+                std::cout << ">>> ";
+                std::cin >> this->target_linear_vel;
             }
         }
         if (ros::ok()) { // Error not shutdown
