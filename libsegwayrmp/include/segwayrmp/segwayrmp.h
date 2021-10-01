@@ -5,6 +5,7 @@
  *
  * \section LICENSE
  *
+ *
  * The BSD License
  *
  * Copyright (c) 2012 William Woodall
@@ -441,7 +442,7 @@ public:
    * \param operational_mode This must be disabled, tractor, or balanced.
    */
   void
-  setOperationalMode(OperationalMode operational_mode);
+  setOperationalMode(OperationalMode operational_mode = balanced);
 
   /*!
    * Sets the controller gain schedule.
@@ -460,7 +461,7 @@ public:
    * True for locked and False for unlocked.  The default state is True.
    */
   void
-  setBalanceModeLocking(bool state = true);
+  setBalanceModeLocking(bool state = false);
 
   /*!
    * Resets all of the integrators.

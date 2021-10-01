@@ -100,6 +100,7 @@ public:
         ros::AsyncSpinner spinner(1);
         spinner.start();
 
+
         this->odometry_reset_start_time = ros::Time::now();
 
         this->connected = false;
@@ -128,8 +129,22 @@ public:
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
                 // this->target_linear_vel = 0.2;
+                std::string str;
+                std::stringstream ss;
                 std::cout << ">>> ";
-                std::cin >> this->target_linear_vel;
+                std::cin >> str;
+                char c;
+                ss << str;
+                ss >> c;
+                if (c == 'q') {
+                    this->disconnect();
+                    this->segway_rmp->shutdown();
+                    return false;
+                }
+                double x;
+                ss >> x;
+                std::cout << x << "\n";
+                this->target_linear_vel = x;
             }
         }
         if (ros::ok()) { // Error not shutdown
@@ -155,7 +170,8 @@ public:
             if (this->linear_vel < this->target_linear_vel) {
                 // Must increase linear speed
                 if (this->linear_pos_accel_limit == 0.0
-                    || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit)
+                    || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
+                )
                     this->linear_vel = this->target_linear_vel;
                 else
                      this->linear_vel += this->linear_pos_accel_limit;
@@ -189,9 +205,9 @@ public:
             ROS_DEBUG("Sending move command: linear velocity = %f, angular velocity = %f",
                this->linear_vel, this->angular_vel);
 
-            //if (this->linear_vel == 0 || this->angular_vel == 0) {
+            // if (this->linear_vel == 0 || this->angular_vel == 0) {
             //    ROS_INFO("Sending Segway Command: l=%f a=%f", this->linear_vel, this->angular_vel);
-            //}
+            // }
             try {
                 this->segway_rmp->move(this->linear_vel, this->angular_vel);
             } catch (std::exception& e) {
@@ -348,9 +364,9 @@ public:
      */
     void motor_timeoutCallback(const ros::TimerEvent& e) {
         boost::mutex::scoped_lock lock(m_mutex);
-        //ROS_INFO("Motor command timeout!  Setting target linear and angular velocities to be zero.");
-        this->target_linear_vel = 0.0;
-        this->target_angular_vel = 0.0;
+        // ROS_INFO("Motor command timeout!  Setting target linear and angular velocities to be zero.");
+        // this->target_linear_vel = 0.0;
+        // this->target_angular_vel = 0.0;
     }
 
     /**
@@ -425,6 +441,9 @@ private:
             }
         }
         ROS_INFO("%s", ss.str().c_str());
+
+        // this->segway_rmp->setBalanceModeLocking(false);
+        this->segway_rmp->setOperationalMode(segwayrmp::balanced);
 
         // Set the instance variable
         segwayrmp_node_instance = this;
@@ -531,7 +550,7 @@ private:
             this->angular_pos_accel_limit, this->angular_neg_accel_limit);
 
         // Get velocity limits. Zero means no limit
-        n->param("max_linear_vel", this->max_linear_vel, 0.0);
+        n->param("max_linear_vel", this->max_linear_vel, 0.5);
         n->param("max_angular_vel", this->max_angular_vel, 0.0);
 
         if (this->max_linear_vel < 0) {

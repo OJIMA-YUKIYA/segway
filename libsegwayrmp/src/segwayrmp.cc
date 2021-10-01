@@ -14,6 +14,7 @@
 
 
 
+
 inline void
 // defaultSegwayStatusCallback(segwayrmp::SegwayStatus::Ptr &segway_status)
 // {
