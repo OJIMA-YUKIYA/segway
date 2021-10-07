@@ -225,6 +225,7 @@ std::string SegwayStatus::str()
   return ss.str();
 }
 
+
 SegwayRMP::SegwayRMP(InterfaceType interface_type,
                      SegwayRMPType segway_rmp_type)
 : interface_type_(no_interface), segway_rmp_type_(segway_rmp_type),
