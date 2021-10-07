@@ -137,25 +137,6 @@ public:
         }
     }
 
-    void increase_vel(void) {
-        double vm = this->target_linear_vel - this->linear_vel;
-        double am = this->linear_pos_accel_limit;
-        if (t <= vm/am) {
-            this->target_linear_vel = am*am/2/vm/t*t;
-        }
-        else if (vm/am < t && t <= 2*vm/am) {
-            this->target_linear_vel = - am*am/2/vm*t*t + 2*am*t -vm;
-        }
-        else if (2*vm/am < t) {
-            t = 0;
-            return;
-        }
-        else {
-            return;
-        }
-        t += 1.0/20.0;
-    }
-
     /**
      * This method is called at 20Hz.  Each time it sends a movement
      * command to the Segway RMP.
@@ -412,6 +393,25 @@ public:
     }
 private:
     // Functions
+     void increase_vel(void) {
+        double vm = this->target_linear_vel - this->linear_vel;
+        double am = this->linear_pos_accel_limit;
+        if (t <= vm/am) {
+            this->linear_vel = am*am/2/vm/t*t;
+        }
+        else if (vm/am < t && t <= 2*vm/am) {
+            this->linear_vel = - am*am/2/vm*t*t + 2*am*t -vm;
+        }
+        else if (2*vm/am < t) {
+            this->linear_vel = this->target_linear_vel;
+            t = 0;
+            return;
+        }
+        else {
+            return;
+        }
+        t += 1.0/20.0;
+    }
     void setupROSComms() {
         // Subscribe to command velocities
         this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
