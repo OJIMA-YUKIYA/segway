@@ -114,7 +114,6 @@ public:
                 ROS_ERROR("    %s", e_msg.c_str());
                 this->connected = false;
             }
-            std::cout << this->connected << std::endl;
             if (this->spin()) { // ROS is OK, but we aren't connected, wait then try again
                 ROS_WARN("Not connected to the SegwayRMP, will retry in 3 seconds...");
                 ros::Duration(3).sleep();
@@ -167,21 +166,25 @@ public:
             boost::mutex::scoped_lock lock(this->m_mutex);
 
             // Update the linear velocity based on the linear acceleration limits
-            if (this->linear_vel < this->target_linear_vel) {
-                // Must increase linear speed
-                if (this->linear_pos_accel_limit == 0.0
-                    || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
-                )
-                    this->linear_vel = this->target_linear_vel;
-                else
-                     this->linear_vel += this->linear_pos_accel_limit;
-            } else if (this->linear_vel > this->target_linear_vel) {
-                // Must decrease linear speed
-                if (this->linear_neg_accel_limit == 0.0
-                    || this->linear_vel - this->target_linear_vel < this->linear_neg_accel_limit)
-                    this->linear_vel = this->target_linear_vel;
-                else
-                     this->linear_vel -= this->linear_neg_accel_limit;
+            // if (this->linear_vel < this->target_linear_vel) {
+            //     // Must increase linear speed
+            //     if (this->linear_pos_accel_limit == 0.0
+            //         || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
+            //     )
+            //         this->linear_vel = this->target_linear_vel;
+            //     else
+            //          this->linear_vel += this->linear_pos_accel_limit;
+            // } else if (this->linear_vel > this->target_linear_vel) {
+            //     // Must decrease linear speed
+            //     if (this->linear_neg_accel_limit == 0.0
+            //         || this->linear_vel - this->target_linear_vel < this->linear_neg_accel_limit)
+            //         this->linear_vel = this->target_linear_vel;
+            //     else
+            //          this->linear_vel -= this->linear_neg_accel_limit;
+            // }
+
+            if (this->linear_vel != this->target_linear_vel) {
+                this->change_vel();
             }
 
 
@@ -409,6 +412,35 @@ public:
     }
 private:
     // Functions
+
+    int change_vel(void) {
+        if (this->t == 0) {
+            this->am = this->linear_pos_accel_limit;
+            this->v0 = this->linear_vel;
+            this->vf = this->target_linear_vel;
+            this->vm = (this->vf + this->v0)/2.0;
+            this->tm = (this->vf - this->v0)/am;
+            t = t + 1.0/20.0;
+            return 0;
+        }
+        if (t < tm) {
+            this->linear_vel = am/2.0/tm*t*t + v0;
+            t = t + 1.0/20.0;
+            return 1;
+        }
+        if (t < 2*tm) {
+            this->linear_vel = - am/2.0/tm*(t - tm)*(t - tm) + am*(t - tm) + vm;
+            t = t + 1.0/20.0;
+            return 2;
+        }
+        if (2*tm <= t) {
+            t = 0;
+            this->linear_vel = vf;
+            return 3;
+        }
+        return 4;
+    }
+
     void setupROSComms() {
         // Subscribe to command velocities
         this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
@@ -590,6 +622,8 @@ private:
     }
 
     // Variables
+    double t, tm, am, vm, v0, vf;
+
     ros::NodeHandle * n;
 
     ros::Timer keep_alive_timer;
