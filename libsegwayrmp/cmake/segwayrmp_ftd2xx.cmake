@@ -14,15 +14,26 @@ endif()
 if(UNIX)
   # If Linux
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # list(APPEND SEGWAYRMP_LINK_LIBS
+    #   ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
+    #   dl
+    #   rt
+    #   pthread
+    # )
     list(APPEND SEGWAYRMP_LINK_LIBS
-      ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
+      ${PROJECT_SOURCE_DIR}/ftd2xx/linux/arm64/libftd2xx.a
       dl
       rt
       pthread
     )
+    message(${bitness})
     # Copy this file for rosmake to find it
+    # file(
+    #   COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
+    #   DESTINATION ${PROJECT_SOURCE_DIR}/lib/
+    # )
     file(
-      COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
+      COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/arm64/libftd2xx.a
       DESTINATION ${PROJECT_SOURCE_DIR}/lib/
     )
   endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

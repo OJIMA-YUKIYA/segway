@@ -71,7 +71,7 @@ public:
         this->initial_integrated_left_wheel_position = 0.0;
         this->initial_integrated_right_wheel_position = 0.0;
         this->initial_integrated_turn_position = 0.0;
-        this->count = 0;
+        this->t = 0;
     }
 
     ~SegwayRMPNode() {
@@ -88,7 +88,6 @@ public:
         if (this->getParameters()) {
             return;
         }
-        // std::cout << "hello\n";
 
         this->setupSegwayRMP();
 
@@ -128,22 +127,7 @@ public:
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
                 // this->target_linear_vel = 0.2;
-                std::string str;
-                std::stringstream ss;
-                std::cout << ">>> ";
-                std::cin >> str;
-                char c;
-                ss << str;
-                ss >> c;
-                if (c == 'q') {
-                    this->disconnect();
-                    this->segway_rmp->shutdown();
-                    return false;
-                }
-                double x;
-                ss >> x;
-                std::cout << x << "\n";
-                this->target_linear_vel = x;
+                this->target_linear_vel = 0.3;
             }
         }
         if (ros::ok()) { // Error not shutdown
@@ -166,6 +150,7 @@ public:
             boost::mutex::scoped_lock lock(this->m_mutex);
 
             // Update the linear velocity based on the linear acceleration limits
+<<<<<<< HEAD
             // if (this->linear_vel < this->target_linear_vel) {
             //     // Must increase linear speed
             //     if (this->linear_pos_accel_limit == 0.0
@@ -185,6 +170,24 @@ public:
 
             if (this->linear_vel != this->target_linear_vel) {
                 this->change_vel();
+=======
+            if (this->linear_vel < this->target_linear_vel) {
+                // Must increase linear speed
+                if (this->linear_pos_accel_limit == 0.0
+                    || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
+                )
+                    this->linear_vel = this->target_linear_vel;
+                else
+                    //  this->linear_vel += this->linear_pos_accel_limit
+                    increase_vel();
+            } else if (this->linear_vel > this->target_linear_vel) {
+                // Must decrease linear speed
+                if (this->linear_neg_accel_limit == 0.0
+                    || this->linear_vel - this->target_linear_vel < this->linear_neg_accel_limit)
+                    this->linear_vel = this->target_linear_vel;
+                else
+                     this->linear_vel -= this->linear_neg_accel_limit;
+>>>>>>> refs/remotes/origin/main
             }
 
 
@@ -412,6 +415,7 @@ public:
     }
 private:
     // Functions
+<<<<<<< HEAD
 
     int change_vel(void) {
         if (this->t == 0) {
@@ -441,6 +445,27 @@ private:
         return 4;
     }
 
+=======
+     void increase_vel(void) {
+        double vm = this->target_linear_vel - this->linear_vel;
+        double am = this->linear_pos_accel_limit;
+        if (t <= vm/am) {
+            this->linear_vel = am*am/2/vm/t*t;
+        }
+        else if (vm/am < t && t <= 2*vm/am) {
+            this->linear_vel = - am*am/2/vm*t*t + 2*am*t -vm;
+        }
+        else if (2*vm/am < t) {
+            this->linear_vel = this->target_linear_vel;
+            t = 0;
+            return;
+        }
+        else {
+            return;
+        }
+        t += 1.0/20.0;
+    }
+>>>>>>> refs/remotes/origin/main
     void setupROSComms() {
         // Subscribe to command velocities
         this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
@@ -457,6 +482,7 @@ private:
         if (this->interface_type_str == "serial") {
             ss << "serial on serial port: " << this->serial_port;
             this->segway_rmp->configureSerial(this->serial_port);
+            
         } else if (this->interface_type_str == "usb") {
             ss << "usb ";
             if (this->usb_selector == "serial_number") {
@@ -474,8 +500,6 @@ private:
         }
         ROS_INFO("%s", ss.str().c_str());
 
-        // this->segway_rmp->setBalanceModeLocking(false);
-        this->segway_rmp->setOperationalMode(segwayrmp::balanced);
 
         // Set the instance variable
         segwayrmp_node_instance = this;
@@ -548,7 +572,7 @@ private:
         }
 
         // Get the linear acceleration limits in m/s^2.  Zero means infinite.
-        n->param("linear_pos_accel_limit", this->linear_pos_accel_limit, 0.0);
+        n->param("linear_pos_accel_limit", this->linear_pos_accel_limit, 0.01);
         n->param("linear_neg_accel_limit", this->linear_neg_accel_limit, 0.0);
 
         // Get the angular acceleration limits in deg/s^2.  Zero means infinite.
@@ -675,8 +699,6 @@ private:
     geometry_msgs::TransformStamped odom_trans;
     nav_msgs::Odometry odom_msg;
 
-    int count;
-
     bool first_odometry;
     float last_forward_displacement;
     float last_yaw_displacement;
@@ -696,6 +718,8 @@ private:
     double initial_integrated_left_wheel_position;
     double initial_integrated_right_wheel_position;
     double initial_integrated_turn_position;
+
+    double t;
 
 };
 
