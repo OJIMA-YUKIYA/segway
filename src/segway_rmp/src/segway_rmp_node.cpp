@@ -708,11 +708,11 @@ void handleStatusWrapper(segwayrmp::SegwayStatus::Ptr ss) { // removed '&' by Oj
 }
 
 int main(int argc, char **argv) {
-    // ros::init(argc, argv, "segway_rmp_node");
-    //
-    // SegwayRMPNode segwayrmp_node;
-    //
-    // segwayrmp_node.run();
+    ros::init(argc, argv, "segway_rmp_node");
+
+    SegwayRMPNode segwayrmp_node;
+
+    segwayrmp_node.run();
 
     return 0;
 }
