@@ -150,7 +150,6 @@ public:
             boost::mutex::scoped_lock lock(this->m_mutex);
 
             // Update the linear velocity based on the linear acceleration limits
-<<<<<<< HEAD
             // if (this->linear_vel < this->target_linear_vel) {
             //     // Must increase linear speed
             //     if (this->linear_pos_accel_limit == 0.0
@@ -170,25 +169,24 @@ public:
 
             if (this->linear_vel != this->target_linear_vel) {
                 this->change_vel();
-=======
-            if (this->linear_vel < this->target_linear_vel) {
-                // Must increase linear speed
-                if (this->linear_pos_accel_limit == 0.0
-                    || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
-                )
-                    this->linear_vel = this->target_linear_vel;
-                else
-                    //  this->linear_vel += this->linear_pos_accel_limit
-                    increase_vel();
-            } else if (this->linear_vel > this->target_linear_vel) {
-                // Must decrease linear speed
-                if (this->linear_neg_accel_limit == 0.0
-                    || this->linear_vel - this->target_linear_vel < this->linear_neg_accel_limit)
-                    this->linear_vel = this->target_linear_vel;
-                else
-                     this->linear_vel -= this->linear_neg_accel_limit;
->>>>>>> refs/remotes/origin/main
             }
+            // if (this->linear_vel < this->target_linear_vel) {
+            //     // Must increase linear speed
+            //     if (this->linear_pos_accel_limit == 0.0
+            //         || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
+            //     )
+            //         this->linear_vel = this->target_linear_vel;
+            //     else
+            //         //  this->linear_vel += this->linear_pos_accel_limit
+            //         increase_vel();
+            // } else if (this->linear_vel > this->target_linear_vel) {
+            //     // Must decrease linear speed
+            //     if (this->linear_neg_accel_limit == 0.0
+            //         || this->linear_vel - this->target_linear_vel < this->linear_neg_accel_limit)
+            //         this->linear_vel = this->target_linear_vel;
+            //     else
+            //          this->linear_vel -= this->linear_neg_accel_limit;
+            // }
 
 
             // Update the angular velocity based on the angular acceleration limits
@@ -413,8 +411,9 @@ public:
                 this,
                 true);
     }
+
 private:
-    // Functions
+    // Function
     int change_vel(void) {
         if (this->t == 0) {
             this->am = this->linear_pos_accel_limit;
@@ -442,7 +441,7 @@ private:
         }
         return 4;
     }
-    
+
 
     void setupROSComms() {
         // Subscribe to command velocities
@@ -697,9 +696,7 @@ private:
     double initial_integrated_right_wheel_position;
     double initial_integrated_turn_position;
 
-    double t;
-
-};
+}; // class SegwayRMPNode
 
 // Callback wrapper
 // void handleStatusWrapper(segwayrmp::SegwayStatus::Ptr &ss) {
@@ -711,11 +708,11 @@ void handleStatusWrapper(segwayrmp::SegwayStatus::Ptr ss) { // removed '&' by Oj
 }
 
 int main(int argc, char **argv) {
-    ros::init(argc, argv, "segway_rmp_node");
-
-    SegwayRMPNode segwayrmp_node;
-
-    segwayrmp_node.run();
+    // ros::init(argc, argv, "segway_rmp_node");
+    //
+    // SegwayRMPNode segwayrmp_node;
+    //
+    // segwayrmp_node.run();
 
     return 0;
 }

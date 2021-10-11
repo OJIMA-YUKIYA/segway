@@ -7,35 +7,35 @@ list(APPEND SEGWAYRMP_SRCS src/impl/rmp_ftd2xx.cc)
 
 set(bitness x32)
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(bitness x64)  
+  set(bitness x64)
 endif()
 
 # For Unix like systems
 if(UNIX)
   # If Linux
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # list(APPEND SEGWAYRMP_LINK_LIBS
-    #   ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
-    #   dl
-    #   rt
-    #   pthread
-    # )
     list(APPEND SEGWAYRMP_LINK_LIBS
-      ${PROJECT_SOURCE_DIR}/ftd2xx/linux/arm64/libftd2xx.a
+      ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
       dl
       rt
       pthread
     )
+    # list(APPEND SEGWAYRMP_LINK_LIBS
+    #   ${PROJECT_SOURCE_DIR}/ftd2xx/linux/arm64/libftd2xx.a
+    #   dl
+    #   rt
+    #   pthread
+    # )
     message(${bitness})
     # Copy this file for rosmake to find it
-    # file(
-    #   COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
-    #   DESTINATION ${PROJECT_SOURCE_DIR}/lib/
-    # )
     file(
-      COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/arm64/libftd2xx.a
+      COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
       DESTINATION ${PROJECT_SOURCE_DIR}/lib/
     )
+    # file(
+    #   COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/arm64/libftd2xx.a
+    #   DESTINATION ${PROJECT_SOURCE_DIR}/lib/
+    # )
   endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # If Mac OS X
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
