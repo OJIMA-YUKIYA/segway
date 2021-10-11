@@ -415,8 +415,14 @@ public:
 private:
     // Function
     int change_vel(void) {
-        if (this->t == 0) {
-            this->am = this->linear_pos_accel_limit;
+        if (this->vf != this->target_linear_vel) {
+            this->t = 0;
+            if (this->linear_vel < this->target_linear_vel) {
+                this->am = this->linear_pos_accel_limit;
+            }
+            else {
+                this->am = -this->linear_pos_accel_limit;
+            }
             this->v0 = this->linear_vel;
             this->vf = this->target_linear_vel;
             this->vm = (this->vf + this->v0)/2.0;
