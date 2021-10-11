@@ -415,8 +415,6 @@ public:
     }
 private:
     // Functions
-<<<<<<< HEAD
-
     int change_vel(void) {
         if (this->t == 0) {
             this->am = this->linear_pos_accel_limit;
@@ -444,28 +442,8 @@ private:
         }
         return 4;
     }
+    
 
-=======
-     void increase_vel(void) {
-        double vm = this->target_linear_vel - this->linear_vel;
-        double am = this->linear_pos_accel_limit;
-        if (t <= vm/am) {
-            this->linear_vel = am*am/2/vm/t*t;
-        }
-        else if (vm/am < t && t <= 2*vm/am) {
-            this->linear_vel = - am*am/2/vm*t*t + 2*am*t -vm;
-        }
-        else if (2*vm/am < t) {
-            this->linear_vel = this->target_linear_vel;
-            t = 0;
-            return;
-        }
-        else {
-            return;
-        }
-        t += 1.0/20.0;
-    }
->>>>>>> refs/remotes/origin/main
     void setupROSComms() {
         // Subscribe to command velocities
         this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
@@ -482,7 +460,7 @@ private:
         if (this->interface_type_str == "serial") {
             ss << "serial on serial port: " << this->serial_port;
             this->segway_rmp->configureSerial(this->serial_port);
-            
+
         } else if (this->interface_type_str == "usb") {
             ss << "usb ";
             if (this->usb_selector == "serial_number") {
