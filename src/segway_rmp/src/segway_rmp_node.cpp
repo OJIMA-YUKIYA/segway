@@ -71,7 +71,12 @@ public:
         this->initial_integrated_left_wheel_position = 0.0;
         this->initial_integrated_right_wheel_position = 0.0;
         this->initial_integrated_turn_position = 0.0;
-        this->t = 0;
+        this->t = 0.0;
+        this->t1 = 0.0;
+        this->t2 = 0.0;
+        this->tm = 0.0;
+        this->change_vel_version = 0;
+        this->alpha = 0.125;
     }
 
     ~SegwayRMPNode() {
@@ -126,8 +131,8 @@ public:
             ROS_INFO("Segway RMP Ready.");
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
-                // this->target_linear_vel = 0.2;
-                this->target_linear_vel = 0.3;
+                std::cout << "set target_velocity: ";
+                std::cin >> this->target_linear_vel;
             }
         }
         if (ros::ok()) { // Error not shutdown
@@ -415,37 +420,78 @@ public:
 private:
     // Function
     int change_vel(void) {
-        if (this->vf != this->target_linear_vel) {
+        if (this->target_linear_vel != this->vf) {
             this->t = 0;
-            if (this->linear_vel < this->target_linear_vel) {
-                this->am = this->linear_pos_accel_limit;
-            }
-            else {
-                this->am = -this->linear_pos_accel_limit;
-            }
             this->v0 = this->linear_vel;
             this->vf = this->target_linear_vel;
-            this->vm = (this->vf + this->v0)/2.0;
-            this->tm = (this->vf - this->v0)/am;
+            this->am = this->linear_pos_accel_limit;
+            this->t1 = this->linear_pos_accel_limit/this->alpha;
+            if (vf < v0) {
+                am = -am;
+            }
+
+            if (std::abs(vf - v0) > std::abs(am*t1)) {
+                this->change_vel_version = 1;
+                this->t2 = (vf - v0)/am;
+                this->tm = 0;
+            }
+            else {
+                this->change_vel_version = 2;
+                this->tm = std::sqrt(abs(vf - v0)/alpha);
+                this->t2 = 0;
+            }
+
             t = t + 1.0/20.0;
+
             return 0;
         }
-        if (t < tm) {
-            this->linear_vel = am/2.0/tm*t*t + v0;
+
+        switch (this->change_vel_version) {
+            case 1:
+                return this->change_vel_v1();
+            case 2:
+                return this->change_vel_v2();
+        }
+
+        return -1;
+    }
+
+    int change_vel_v1(void) {
+        if (t < t1) {
+            this->linear_vel = am/2.0/t1*t*t + v0;
             t = t + 1.0/20.0;
             return 1;
         }
-        if (t < 2*tm) {
-            this->linear_vel = - am/2.0/tm*(t - tm)*(t - tm) + am*(t - tm) + vm;
+        if (t < t2) {
+            this->linear_vel = am*(t - t1) + am*t1/2.0 + v0;
             t = t + 1.0/20.0;
             return 2;
         }
-        if (2*tm <= t) {
-            t = 0;
-            this->linear_vel = vf;
+        if (t < t2 + t1) {
+            this->linear_vel = - am/2.0/t1*(t - t2)*(t - t2) + am*(t - t2) + am*(t2 - t1) + am*t1/2.0 + v0;
+            t = t + 1.0/20.0;
             return 3;
         }
+
+        this->linear_vel = this->target_linear_vel;
+        t = t + 1.0/20.0;
         return 4;
+    }
+
+    int change_vel_v2(void) {
+        if (t < tm) {
+            this->linear_vel = alpha/2.0*t*t + v0;
+            t = t + 1.0/20.0;
+            return 5;
+        }
+        if (t < 2*tm) {
+            this->linear_vel = alpha/2.0*(t - tm)*(t - tm) + alpha*tm*(t - tm) + v0;
+            t = t + 1.0/20.0;
+            return 6;
+        }
+        this->linear_vel = this->target_linear_vel;
+        t = t + 1.0/20.0;
+        return 7;
     }
 
 
@@ -629,7 +675,8 @@ private:
     }
 
     // Variables
-    double t, tm, am, vm, v0, vf;
+    double t, t1, t2, tm, am, vm, v0, vf, alpha;
+    int change_vel_version;
 
     ros::NodeHandle * n;
 
