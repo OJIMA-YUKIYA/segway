@@ -36,6 +36,10 @@
 
 #include <boost/thread.hpp>
 
+#include <std_msgs/String.h>
+
+#include "segway_rmp/VelocityStatus.h"
+
 class SegwayRMPNode;
 
 static SegwayRMPNode * segwayrmp_node_instance;
@@ -71,12 +75,16 @@ public:
         this->initial_integrated_left_wheel_position = 0.0;
         this->initial_integrated_right_wheel_position = 0.0;
         this->initial_integrated_turn_position = 0.0;
-        this->t = 0.0;
-        this->t1 = 0.0;
-        this->t2 = 0.0;
+        this->alpha = pow(2, -5);
+        this->T1 = 0.0;
+        this->T2 = 0.0;
+        this->T3 = 0.0;
         this->tm = 0.0;
-        this->change_vel_version = 0;
-        this->alpha = 0.125;
+        this->vm = 0.0;
+        this->t = 0.0;
+        this->ct = 0.0;
+        this->x = 0.0;
+        this->change_vel_section = 0;
     }
 
     ~SegwayRMPNode() {
@@ -131,7 +139,7 @@ public:
             ROS_INFO("Segway RMP Ready.");
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
-                std::cout << "set target_velocity: ";
+                std::cout << "set the target_velocity (m/s) >>> ";
                 std::cin >> this->target_linear_vel;
             }
         }
@@ -172,9 +180,24 @@ public:
             //          this->linear_vel -= this->linear_neg_accel_limit;
             // }
 
-            if (this->linear_vel != this->target_linear_vel) {
-                this->change_vel();
+            int ret = 0;
+
+            if (this->x != 0) {
+                ret = this->change_vel();
+                // this->linear_vel = this->target_linear_vel;
             }
+
+            segway_rmp::VelocityStatus vs;
+            vs.section = ret;
+            vs.T1 = this->T1;
+            vs.T2 = this->T2;
+            vs.T3 = this->T3;
+            vs.t = this->ct;
+            vs.velocity = this->linear_vel;
+            vs.vm = this->vm;
+            vs.T = 4 * this->T1 + 2 * this->T2 + this->T3;
+            vel_pub.publish(vs);
+
             // if (this->linear_vel < this->target_linear_vel) {
             //     // Must increase linear speed
             //     if (this->linear_pos_accel_limit == 0.0
@@ -211,8 +234,8 @@ public:
                      this->angular_vel -= this->angular_neg_accel_limit;
             }
 
-            ROS_DEBUG("Sending move command: linear velocity = %f, angular velocity = %f",
-               this->linear_vel, this->angular_vel);
+            // ROS_DEBUG("Sending move command: linear velocity = %f, angular velocity = %f",
+            //    this->linear_vel, this->angular_vel);
 
             // if (this->linear_vel == 0 || this->angular_vel == 0) {
             //    ROS_INFO("Sending Segway Command: l=%f a=%f", this->linear_vel, this->angular_vel);
@@ -420,78 +443,162 @@ public:
 private:
     // Function
     int change_vel(void) {
-        if (this->target_linear_vel != this->vf) {
-            this->t = 0;
-            this->v0 = this->linear_vel;
-            this->vf = this->target_linear_vel;
-            this->am = this->linear_pos_accel_limit;
-            this->t1 = this->linear_pos_accel_limit/this->alpha;
-            if (vf < v0) {
-                am = -am;
-            }
-
-            if (std::abs(vf - v0) > std::abs(am*t1)) {
-                this->change_vel_version = 1;
-                this->t2 = (vf - v0)/am;
-                this->tm = 0;
+        switch (this->change_vel_section) {
+            case 0: return change_vel_section_0_init();
+            case 1: return change_vel_section_1();
+            case 2: return change_vel_section_2();
+            case 3: return change_vel_section_3();
+            case 4: return change_vel_section_4();
+            case 5: return change_vel_section_5();
+            case 6: return change_vel_section_6();
+            case 7: return change_vel_section_7();
+        }
+        return 404;
+    }
+    int change_vel_section_0_init(void) {
+        this->ct = 0;
+        this->am = this->linear_pos_accel_limit;
+        this->vm = this->max_linear_vel;
+        this->T1 = this->am / this->alpha;
+        this->T2 = this->vm / this->am - this->T1;
+        if (this->T2 < 0) {
+            this->T2 = 0;
+            this->T1 = std::sqrt(this->vm/this->alpha);
+            this->am = this->alpha * this->T1;
+        }
+        this->T3 = (this->x - (3.0/2.0*this->am*std::pow(this->T1, 2) + this->am*this->T2*(2.0*this->T1 + this->T2) ))/this->vm;
+        if (this->T3 < 0) {
+            this->T3 = 0;
+            if (4.0 * std::pow(this->am, 2) * std::pow(this->T1, 2) - 2 * this->am * (3.0 * this->am * std::pow(this->T1, 2) - 2.0 * this->x) < 0) {
+                this->T2 = 0;
+                this->T1 = std::pow(2.0 * this->x / 3.0 / this->alpha, 1.0/3.0);
+                this->am = this->alpha * this->T1;
+                this->vm = this->am * this->T1;
             }
             else {
-                this->change_vel_version = 2;
-                this->tm = std::sqrt(abs(vf - v0)/alpha);
-                this->t2 = 0;
+                this->T2 = -2.0 * this->am * this->T1;
+                this->T2 = this->T2 + std::pow(4 * std::pow(this->am, 2) * std::pow(this->T1, 2) - 2.0 * this->am * (3.0 * this->am * std::pow(this->T1, 2) - 2 * this->x), 0.5);
+                this->T2 = this->T2 / 2.0 / this->am;
+                this->vm = this->am * (this->T1 + this->T2);
+                if (this->T2 < 0) {
+                    this->T2 = 0;
+                    this->T1 = std::pow(2.0 * this->x / 3.0 / this->alpha, 1.0/3.0);
+                    this->am = this->alpha * this->T1;
+                }
             }
-
-            t = t + 1.0/20.0;
-
-            return 0;
         }
 
-        switch (this->change_vel_version) {
-            case 1:
-                return this->change_vel_v1();
-            case 2:
-                return this->change_vel_v2();
-        }
+        this->change_vel_section = 1;
+        this->t = 0;
 
+        return 0;
+    }
+
+    int change_vel_section_1(void) {
+        if (this->t < this->T1) {
+            this->linear_vel = this->alpha / 2.0 * std::pow(this->t, 2);
+            this->t += 1.0/20.0;
+            this->ct += 1.0/20.0;
+            return 1;
+        }
+        else {
+            this->t = 0;
+            this->change_vel_section = 2;
+            return change_vel_section_2();
+        }
         return -1;
     }
 
-    int change_vel_v1(void) {
-        if (t < t1) {
-            this->linear_vel = am/2.0/t1*t*t + v0;
-            t = t + 1.0/20.0;
-            return 1;
-        }
-        if (t < t2) {
-            this->linear_vel = am*(t - t1) + am*t1/2.0 + v0;
-            t = t + 1.0/20.0;
+    int change_vel_section_2(void) {
+        if (this->t < this->T2) {
+            this->linear_vel = this->am * this->t + this->am * this->T1 /2.0;
+            this->t += 1.0/20.0;
+            this->ct += 1.0/20.0;
             return 2;
         }
-        if (t < t2 + t1) {
-            this->linear_vel = - am/2.0/t1*(t - t2)*(t - t2) + am*(t - t2) + am*(t2 - t1) + am*t1/2.0 + v0;
-            t = t + 1.0/20.0;
-            return 3;
+        else {
+            this->t = 0;
+            this->change_vel_section = 3;
+            return change_vel_section_3();
         }
-
-        this->linear_vel = this->target_linear_vel;
-        t = t + 1.0/20.0;
-        return 4;
+        return -2;
     }
 
-    int change_vel_v2(void) {
-        if (t < tm) {
-            this->linear_vel = alpha/2.0*t*t + v0;
-            t = t + 1.0/20.0;
+    int change_vel_section_3(void) {
+        if (this->t < this->T1) {
+            this->linear_vel = - this->alpha / 2.0 * std::pow(this->t, 2)+ this->am * this->t + this->am * this->T1 / 2.0 + this->am * this->T2;
+            this->t += 1.0/20.0;
+            this->ct += 1.0/20.0;
+            return 3;
+        }
+        else {
+            this->t = 0;
+            this->change_vel_section = 4;
+            return change_vel_section_4();
+        }
+        return -3;
+    }
+
+    int change_vel_section_4(void) {
+        if (this->t < this->T3) {
+            this->linear_vel = this->vm;
+            this->t += 1.0/20.0;
+            this->ct += 1.0/20.0;
+            return 4;
+        }
+        else {
+            this->t = 0;
+            this->change_vel_section = 5;
+            return change_vel_section_5();
+        }
+        return -4;
+    }
+
+    int change_vel_section_5(void) {
+        if (this->t < this->T1) {
+            this->linear_vel = - alpha / 2.0 * std::pow(this->t, 2) + this->vm;
+            this->t += 1.0/20.0;
+            this->ct += 1.0/20.0;
             return 5;
         }
-        if (t < 2*tm) {
-            this->linear_vel = alpha/2.0*(t - tm)*(t - tm) + alpha*tm*(t - tm) + v0;
-            t = t + 1.0/20.0;
+        else {
+            this->t = 0;
+            this->change_vel_section = 6;
+            return change_vel_section_6();
+        }
+        return -5;
+    }
+
+    int change_vel_section_6(void) {
+        if (this->t < this->T2) {
+            this->linear_vel = - this->am * this->t + this->am * this->T1 / 2.0 + this->am * this->T2;
+            this->t += 1.0/20.0;
+            this->ct += 1.0/20.0;
             return 6;
         }
-        this->linear_vel = this->target_linear_vel;
-        t = t + 1.0/20.0;
-        return 7;
+        else {
+            this->t = 0;
+            this->change_vel_section = 7;
+            return change_vel_section_7();
+        }
+        return -6;
+    }
+
+    int change_vel_section_7(void) {
+        if (this->t < this->T1) {
+            this->linear_vel = alpha / 2.0 * std::pow(this->t, 2) - this->am * this->t + this->am * this->T1 / 2.0;
+            this->t += 1.0/20.0;
+            this->ct += 1.0/20.0;
+            return 7;
+        }
+        else {
+            this->t = 0;
+            this->linear_vel = 0;
+            this->change_vel_section = 0;
+            this->x = 0;
+            return 0;
+        }
+        return -7;
     }
 
 
@@ -502,6 +609,8 @@ private:
         this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
         // Advertise the Odometry Msg
         this->odom_pub = n->advertise<nav_msgs::Odometry>("odom", 50);
+
+        this->vel_pub = n->advertise<segway_rmp::VelocityStatus>("vel", 1000);
     }
 
     void setupSegwayRMP() {
@@ -655,8 +764,8 @@ private:
 
         // Convert the linear acceleration limits to have units of (m/s^2)/20 since
         // the movement commands are sent to the Segway at 20Hz.
-        this->linear_pos_accel_limit /= 20;
-        this->linear_neg_accel_limit /= 20;
+        // this->linear_pos_accel_limit /= 20;
+        // this->linear_neg_accel_limit /= 20;
 
         // Convert the angular acceleration limits to have units of (deg/s^2)/20 since
         // the movement commands are sent to the Segway at 20Hz.
@@ -675,8 +784,8 @@ private:
     }
 
     // Variables
-    double t, t1, t2, tm, am, vm, v0, vf, alpha;
-    int change_vel_version;
+    double x, ct, t, T1, T2, T3, tm, am, vm, v0, vf, alpha;
+    int change_vel_section;
 
     ros::NodeHandle * n;
 
@@ -685,6 +794,7 @@ private:
     ros::Subscriber cmd_velSubscriber;
     ros::Publisher segway_status_pub;
     ros::Publisher odom_pub;
+    ros::Publisher vel_pub;
     tf::TransformBroadcaster odom_broadcaster;
 
     segwayrmp::SegwayRMP * segway_rmp;
