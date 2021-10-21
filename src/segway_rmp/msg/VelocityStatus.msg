@@ -1,9 +1,10 @@
-
 int64       section
+float64     x
 float64     t
-float64     T
+float64     total_time
 float64     velocity
 float64     vm
+float64     am
 float64     T1
 float64     T2
 float64     T3

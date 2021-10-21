@@ -55,6 +55,8 @@ void handleErrorMessages(const std::string &msg) {ROS_ERROR("%s",msg.c_str());}
 // void handleStatusWrapper(segwayrmp::SegwayStatus::Ptr &ss);
 void handleStatusWrapper(segwayrmp::SegwayStatus::Ptr ss); //  removed '&' by Ojima
 
+const double dt = 1.0/20.0;
+
 // ROS Node class
 class SegwayRMPNode {
 public:
@@ -75,7 +77,7 @@ public:
         this->initial_integrated_left_wheel_position = 0.0;
         this->initial_integrated_right_wheel_position = 0.0;
         this->initial_integrated_turn_position = 0.0;
-        this->alpha = pow(2, -5);
+        this->alpha = pow(2, -4);
         this->T1 = 0.0;
         this->T2 = 0.0;
         this->T3 = 0.0;
@@ -84,6 +86,7 @@ public:
         this->t = 0.0;
         this->ct = 0.0;
         this->x = 0.0;
+        this->am = 0;
         this->change_vel_section = 0;
     }
 
@@ -107,7 +110,7 @@ public:
         this->setupROSComms();
 
         // Setup keep alive timer
-        this->keep_alive_timer = this->n->createTimer(ros::Duration(1.0/20.0), &SegwayRMPNode::keepAliveCallback, this);
+        this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
 
         ros::AsyncSpinner spinner(1);
         spinner.start();
@@ -139,8 +142,8 @@ public:
             ROS_INFO("Segway RMP Ready.");
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
-                std::cout << "set the target_velocity (m/s) >>> ";
-                std::cin >> this->target_linear_vel;
+                std::cout << ">>> ";
+                std::cin >> this->x;
             }
         }
         if (ros::ok()) { // Error not shutdown
@@ -163,22 +166,22 @@ public:
             boost::mutex::scoped_lock lock(this->m_mutex);
 
             // Update the linear velocity based on the linear acceleration limits
-            // if (this->linear_vel < this->target_linear_vel) {
-            //     // Must increase linear speed
-            //     if (this->linear_pos_accel_limit == 0.0
-            //         || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
-            //     )
-            //         this->linear_vel = this->target_linear_vel;
-            //     else
-            //          this->linear_vel += this->linear_pos_accel_limit;
-            // } else if (this->linear_vel > this->target_linear_vel) {
-            //     // Must decrease linear speed
-            //     if (this->linear_neg_accel_limit == 0.0
-            //         || this->linear_vel - this->target_linear_vel < this->linear_neg_accel_limit)
-            //         this->linear_vel = this->target_linear_vel;
-            //     else
-            //          this->linear_vel -= this->linear_neg_accel_limit;
-            // }
+            if (this->linear_vel < this->target_linear_vel) {
+                // Must increase linear speed
+                if (this->linear_pos_accel_limit == 0.0
+                    || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
+                )
+                    this->linear_vel = this->target_linear_vel;
+                else
+                     this->linear_vel += this->linear_pos_accel_limit;
+            } else if (this->linear_vel > this->target_linear_vel) {
+                // Must decrease linear speed
+                if (this->linear_neg_accel_limit == 0.0
+                    || this->linear_vel - this->target_linear_vel < this->linear_neg_accel_limit)
+                    this->linear_vel = this->target_linear_vel;
+                else
+                     this->linear_vel -= this->linear_neg_accel_limit;
+            }
 
             int ret = 0;
 
@@ -195,7 +198,9 @@ public:
             vs.t = this->ct;
             vs.velocity = this->linear_vel;
             vs.vm = this->vm;
-            vs.T = 4 * this->T1 + 2 * this->T2 + this->T3;
+            vs.am = this->am;
+            vs.total_time = 4 * this->T1 + 2 * this->T2 + this->T3;
+            vs.x = 2.0*this->am*pow(this->T1, 2) + 3.0*this->am*this->T1*this->T2 + this->am*pow(this->T2, 2) + vm*T3;
             vel_pub.publish(vs);
 
             // if (this->linear_vel < this->target_linear_vel) {
@@ -241,7 +246,7 @@ public:
             //    ROS_INFO("Sending Segway Command: l=%f a=%f", this->linear_vel, this->angular_vel);
             // }
             try {
-                this->segway_rmp->move(this->linear_vel, this->angular_vel);
+                this->segway_rmp->move(this->linear_vel, 0);
             } catch (std::exception& e) {
                 std::string e_msg(e.what());
                 ROS_ERROR("Error commanding Segway RMP: %s", e_msg.c_str());
@@ -456,49 +461,52 @@ private:
         return 404;
     }
     int change_vel_section_0_init(void) {
-        this->ct = 0;
         this->am = this->linear_pos_accel_limit;
         this->vm = this->max_linear_vel;
         this->T1 = this->am / this->alpha;
-        this->T2 = this->vm / this->am - this->T1;
-        if (this->T2 < 0) {
+
+        if (this->am * this->T1 > this->vm) {
             this->T2 = 0;
-            this->T1 = std::sqrt(this->vm/this->alpha);
+            this->T1 = std::sqrt(this->vm / this->alpha);
             this->am = this->alpha * this->T1;
         }
-        this->T3 = (this->x - (3.0/2.0*this->am*std::pow(this->T1, 2) + this->am*this->T2*(2.0*this->T1 + this->T2) ))/this->vm;
-        if (this->T3 < 0) {
+        else {
+            this->T2 = this->vm / this->am - this->T1;
+        }
+
+        // x = 2*am*pow(T1, 2) + 3*am*T1*T2 + am*pow(T2, 2) + vm*T3
+        if (x > this->am*(2.0*std::pow(this->T1, 2) + 3.0*this->T1*this->T2 + std::pow(this->T2, 2))) {
+            this->T3 = (this->x - this->am*(2.0*std::pow(this->T1, 2) + 3.0*this->T1*this->T2 + std::pow(this->T2, 2)))/this->vm;
+        }
+        else {
             this->T3 = 0;
-            if (4.0 * std::pow(this->am, 2) * std::pow(this->T1, 2) - 2 * this->am * (3.0 * this->am * std::pow(this->T1, 2) - 2.0 * this->x) < 0) {
+            if (this->T2 > 0){
+                this->T2 = -3.0*this->am*this->T1;
+                this->T2 += sqrt(9.0*pow(this->am, 2)*pow(this->T1, 2) - 4.0*this->am*(2*this->am*pow(this->T1, 2) - this->x));
+                this->T2 = this->T2/(2.0*this->am);
+                this->vm = this->am * (this->T1 + this->T2);
+            }
+            else {
                 this->T2 = 0;
-                this->T1 = std::pow(2.0 * this->x / 3.0 / this->alpha, 1.0/3.0);
+                this->T1 = pow(this->x / 2.0 / this->alpha, 1.0/3.0);
                 this->am = this->alpha * this->T1;
                 this->vm = this->am * this->T1;
             }
-            else {
-                this->T2 = -2.0 * this->am * this->T1;
-                this->T2 = this->T2 + std::pow(4 * std::pow(this->am, 2) * std::pow(this->T1, 2) - 2.0 * this->am * (3.0 * this->am * std::pow(this->T1, 2) - 2 * this->x), 0.5);
-                this->T2 = this->T2 / 2.0 / this->am;
-                this->vm = this->am * (this->T1 + this->T2);
-                if (this->T2 < 0) {
-                    this->T2 = 0;
-                    this->T1 = std::pow(2.0 * this->x / 3.0 / this->alpha, 1.0/3.0);
-                    this->am = this->alpha * this->T1;
-                }
-            }
         }
+
+        this->T3 += 0.15*this->T3/this->vm + (pow(2*0.05/this->alpha, 3.0/2.0) + 0.05*this->T1)/3.0/this->vm;
 
         this->change_vel_section = 1;
         this->t = 0;
-
+        this->ct = 0;
         return 0;
     }
 
     int change_vel_section_1(void) {
-        if (this->t < this->T1) {
+        if (this->t <= this->T1) {
             this->linear_vel = this->alpha / 2.0 * std::pow(this->t, 2);
-            this->t += 1.0/20.0;
-            this->ct += 1.0/20.0;
+            this->t += dt;
+            this->ct += dt;
             return 1;
         }
         else {
@@ -510,10 +518,10 @@ private:
     }
 
     int change_vel_section_2(void) {
-        if (this->t < this->T2) {
+        if (this->t <= this->T2) {
             this->linear_vel = this->am * this->t + this->am * this->T1 /2.0;
-            this->t += 1.0/20.0;
-            this->ct += 1.0/20.0;
+            this->t += dt;
+            this->ct += dt;
             return 2;
         }
         else {
@@ -525,10 +533,10 @@ private:
     }
 
     int change_vel_section_3(void) {
-        if (this->t < this->T1) {
+        if (this->t <= this->T1) {
             this->linear_vel = - this->alpha / 2.0 * std::pow(this->t, 2)+ this->am * this->t + this->am * this->T1 / 2.0 + this->am * this->T2;
-            this->t += 1.0/20.0;
-            this->ct += 1.0/20.0;
+            this->t += dt;
+            this->ct += dt;
             return 3;
         }
         else {
@@ -540,10 +548,10 @@ private:
     }
 
     int change_vel_section_4(void) {
-        if (this->t < this->T3) {
+        if (this->t <= this->T3) {
             this->linear_vel = this->vm;
-            this->t += 1.0/20.0;
-            this->ct += 1.0/20.0;
+            this->t += dt;
+            this->ct += dt;
             return 4;
         }
         else {
@@ -555,10 +563,10 @@ private:
     }
 
     int change_vel_section_5(void) {
-        if (this->t < this->T1) {
+        if (this->t <= this->T1) {
             this->linear_vel = - alpha / 2.0 * std::pow(this->t, 2) + this->vm;
-            this->t += 1.0/20.0;
-            this->ct += 1.0/20.0;
+            this->t += dt;
+            this->ct += dt;
             return 5;
         }
         else {
@@ -570,10 +578,10 @@ private:
     }
 
     int change_vel_section_6(void) {
-        if (this->t < this->T2) {
+        if (this->t <= this->T2) {
             this->linear_vel = - this->am * this->t + this->am * this->T1 / 2.0 + this->am * this->T2;
-            this->t += 1.0/20.0;
-            this->ct += 1.0/20.0;
+            this->t += dt;
+            this->ct += dt;
             return 6;
         }
         else {
@@ -585,10 +593,10 @@ private:
     }
 
     int change_vel_section_7(void) {
-        if (this->t < this->T1) {
+        if (this->t <= this->T1) {
             this->linear_vel = alpha / 2.0 * std::pow(this->t, 2) - this->am * this->t + this->am * this->T1 / 2.0;
-            this->t += 1.0/20.0;
-            this->ct += 1.0/20.0;
+            this->t += dt;
+            this->ct += dt;
             return 7;
         }
         else {
@@ -710,7 +718,7 @@ private:
         }
 
         // Get the linear acceleration limits in m/s^2.  Zero means infinite.
-        n->param("linear_pos_accel_limit", this->linear_pos_accel_limit, 0.01);
+        n->param("linear_pos_accel_limit", this->linear_pos_accel_limit, 0.1);
         n->param("linear_neg_accel_limit", this->linear_neg_accel_limit, 0.0);
 
         // Get the angular acceleration limits in deg/s^2.  Zero means infinite.
@@ -744,7 +752,7 @@ private:
             this->angular_pos_accel_limit, this->angular_neg_accel_limit);
 
         // Get velocity limits. Zero means no limit
-        n->param("max_linear_vel", this->max_linear_vel, 0.5);
+        n->param("max_linear_vel", this->max_linear_vel, 0.3);
         n->param("max_angular_vel", this->max_angular_vel, 0.0);
 
         if (this->max_linear_vel < 0) {
@@ -769,8 +777,8 @@ private:
 
         // Convert the angular acceleration limits to have units of (deg/s^2)/20 since
         // the movement commands are sent to the Segway at 20Hz.
-        this->angular_pos_accel_limit /= 20;
-        this->angular_neg_accel_limit /= 20;
+        // this->angular_pos_accel_limit /= 20;
+        // this->angular_neg_accel_limit /= 20;
 
         // Get the scale correction parameters for odometry
         n->param("linear_odom_scale", this->linear_odom_scale, 1.0);
