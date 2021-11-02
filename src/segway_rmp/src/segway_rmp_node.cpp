@@ -63,7 +63,7 @@ public:
 };
 
 class ChangeVelocity {
-    bool* latch;
+    int* latch;
     bool x_minus;
     double vel, vel_limit, accel_limit;
     double linear_vel_limit, linear_accel_limit;
@@ -75,7 +75,7 @@ class ChangeVelocity {
     char linear_or_angular;
 public:
     ChangeVelocity(
-        ros::Publisher& vel_pub, bool* latch, double max_linear_vel, double max_linear_accel, double max_angular_vel, double max_angular_accel
+        ros::Publisher& vel_pub, int* latch, double max_linear_vel, double max_linear_accel, double max_angular_vel, double max_angular_accel
     )
     : vel_pub(vel_pub), latch(latch), linear_vel_limit(max_linear_vel), linear_accel_limit(accel_limit), angular_vel_limit(max_angular_vel), angular_accel_limit(max_angular_accel),
     vel(0), x(0), ct(0), t(0), T1(0), T2(0), T3(0), am(0), v0(0), vf(0), alpha(0), section(0),
@@ -113,7 +113,7 @@ public:
         this->linear_or_angular = 'a';
         this->vel_limit = this->angular_vel_limit;
         this->accel_limit = this->angular_accel_limit;
-        this->alpha = pow(2, -3);
+        this->alpha = pow(2, -2);
         return;
     }
 
@@ -339,8 +339,78 @@ public:
 
     int section_8(void) {
         this->vel = 0;
-        *(this->latch) = false;
+        *(this->latch) = 0;
         return 8;
+    }
+};
+
+class BanAccel {
+    int* latch;
+    int section;
+    double t, ct;
+    double vel, a;
+    double vel_limit;
+    ros::Publisher vel_pub;
+public:
+    BanAccel(ros::Publisher& vel_pub, int* latch): vel_pub(vel_pub), latch(latch) {}
+    void setup(double vel_limit, double a) {
+        this->vel_limit = vel_limit;
+        this->vel = 0;
+        this->a = a;
+        this->t = 0;
+        this->ct = 0;
+        this->section = 1;
+    }
+    Lavel controller() {
+        switch (this->section) {
+            case 1:
+                section_1();
+                break;
+            case 2:
+                section_2();
+                break;
+        }
+        segway_rmp::VelocityStatus vs;
+        vs.section = this->section;
+        vs.t = this->ct;
+        vs.velocity = this->vel;
+        vs.vm = this->vel_limit;
+        vs.am = this->a;
+        vs.x = 0;
+        vs.T1 = 0;
+        vs.T2 = 0;
+        vs.T3 = 0;
+        vel_pub.publish(vs);
+        Lavel la;
+        la.linear_vel = this->vel;
+        la.angular_vel = 0;
+        return la;
+    }
+    void section_1() {
+        if (abs(this->vel) < abs(this->vel_limit)) {
+            this->vel = this->a * this->t;
+            this->t += dt;
+            this->ct += dt;
+        }
+        else {
+            this->t = 0;
+            this->section = 2;
+            return section_2();
+        }
+        return;
+    }
+    void section_2() {
+        if (abs(this->vel) > 0.005) {
+            this->vel = this->vel_limit - this->a * this->t;
+            this->t += dt;
+            this->ct += dt;
+        }
+        else {
+            this->vel = 0;
+            *(this->latch) = 0;
+            return;
+        }
+        return;
     }
 };
 
@@ -364,7 +434,7 @@ public:
         this->initial_integrated_left_wheel_position = 0.0;
         this->initial_integrated_right_wheel_position = 0.0;
         this->initial_integrated_turn_position = 0.0;
-        this->latch = false;
+        this->latch = 0;
     }
 
     ~SegwayRMPNode() {
@@ -386,7 +456,8 @@ public:
 
         this->setupROSComms();
 
-        this->cv = new ChangeVelocity(vel_pub, &latch, this->max_linear_vel, this->linear_pos_accel_limit, this->max_angular_vel, this->angular_pos_accel_limit);
+        this->cv = new ChangeVelocity(this->vel_pub, &latch, this->max_linear_vel, this->linear_pos_accel_limit, this->max_angular_vel, this->angular_pos_accel_limit);
+        this->ba = new BanAccel(this->vel_pub, &(this->latch));
 
         // Setup keep alive timer
         this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
@@ -436,15 +507,16 @@ public:
                         break;
                     }
                 }
-                std::cout << "前後に動かす場合は 1 を入力。曲がる場合は 2 を入力 >> ";
+                std::cout << "前後に動かす場合は 1 を入力。曲がる場合は 2 を入力。バン加速は 3 を入力 >> ";
                 int num;
                 std::cin >> num;
-                double x, theta, r;
+                double x, theta, r, a, max_vel;
                 switch (num) {
                     case 1:
                         std::cout << "変位 x (m) を入力 >> ";
                         std::cin >> x;
                         cv->setup(x);
+                        this->latch = 1;
                         break;
                     case 2:
                         std::cout << "回転角度 theta (deg) と 回転半径 r (m) を入力\n回転角度 theta (deg) = ";
@@ -452,9 +524,17 @@ public:
                         std::cout << "回転半径 r (m) = ";
                         std::cin >> r;
                         cv->setup(r, theta);
+                        this->latch = 1;
                         break;
+                    case 3:
+                        std::cout << "最高速度 max_vel (m/s) と 加速度 a (m/s/s) と を入力\n";
+                        std::cout << "max_vel = ";
+                        std::cin >> max_vel;
+                        std::cout << "a = ";
+                        std::cin >> a;
+                        ba->setup(max_vel, a);
+                        this->latch = 2;
                 }
-                this->latch = true;
                 std::cout << "移動中・・・\n";
             }
             ros::Duration(100).sleep();
@@ -499,8 +579,11 @@ public:
 
             Lavel la;
 
-            if (this->latch) {
+            if (this->latch == 1) {
                 la = this->cv->controller();
+            }
+            else if (this->latch == 2) {
+                la = this->ba->controller();
             }
 
             // if (this->r != 0 || this->theta != 0) {
@@ -1029,8 +1112,9 @@ private:
     double initial_integrated_turn_position;
 
     ChangeVelocity* cv;
-    bool latch;
-    // double x, r, theta;
+    int latch;
+
+    BanAccel* ba;
 }; // class SegwayRMPNode
 
 // Callback wrapper

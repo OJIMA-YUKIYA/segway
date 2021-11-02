@@ -1,2 +1,3 @@
 #!/bin/bash
-cd libsegwayrmp && make && cd .. && catkin_make
+cd libsegwayrmp && make
+cd .. && catkin_make
