@@ -38,6 +38,7 @@
  */
 
 
+
 #ifndef SEGWAYRMP_H
 #define SEGWAYRMP_H
 
@@ -729,6 +730,9 @@ public:
    */
   void
   setExceptionCallback(ExceptionCallback callback);
+
+  int
+  set_mps_to_counts(int mpsToCounts);
 private:
   // Disable Copy Constructor
   void operator=(const SegwayRMP &);

@@ -401,13 +401,14 @@ void SegwayRMP::moveCounts(short int linear_counts, short int angular_counts)
   }
 }
 
+
 void SegwayRMP::move(float linear_velocity, float angular_velocity)
 {
   // Ensure we are connected
   if (!this->connected_)
     RMP_THROW_MSG(MoveFailedException, "Not Connected.");
   try {
-    short int lv = (short int)(linear_velocity * this->mps_to_counts_);
+    short int lv = (short int)(linear_velocity * this->mps_to_counts_); // this->mps_to_counts_ == 332;
     short int av = (short int)(angular_velocity * this->dps_to_counts_);
 
     Packet packet;
@@ -485,12 +486,12 @@ void SegwayRMP::setControllerGainSchedule(
 
     this->rmp_io_->sendPacket(packet);
 
-//    while(this->segway_status_->controller_gain_schedule
-//          != controller_gain_schedule)
-//    {
-//      // Check again in 10 ms
-//      boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-//    }
+   while(this->segway_status_->controller_gain_schedule
+         != controller_gain_schedule)
+   {
+     // Check again in 10 ms
+     boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+   }
   } catch (std::exception &e) {
     std::stringstream ss;
     ss << "Cannot set controller gain schedule: " << e.what();
@@ -956,4 +957,9 @@ void SegwayRMP::ProcessPacket_(Packet &packet)
     }
     this->segway_status_ = SegwayStatus::Ptr(new SegwayStatus());
   }
+}
+
+int SegwayRMP::set_mps_to_counts(int mpsToCounts) {
+    this->mps_to_counts_ += mpsToCounts;
+    return this->mps_to_counts_;
 }
