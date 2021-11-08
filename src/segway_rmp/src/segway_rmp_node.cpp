@@ -369,6 +369,9 @@ public:
             case 2:
                 section_2();
                 break;
+            case 3:
+                section_3();
+                break;
         }
         segway_rmp::VelocityStatus vs;
         vs.section = this->section;
@@ -400,6 +403,18 @@ public:
         return;
     }
     void section_2() {
+        if (this->t < 3) {
+            this->vel = this->vel_limit;
+            this->t += dt;
+            this->ct += dt;
+        }
+        else {
+            this->t = 0;
+            this->section = 3;
+            return section_3();
+        }
+    }
+    void section_3() {
         if (abs(this->vel) > 0.005) {
             this->vel = this->vel_limit - this->a * this->t;
             this->t += dt;
@@ -507,7 +522,7 @@ public:
                         break;
                     }
                 }
-                std::cout << "前後に動かす場合は 1 を入力。曲がる場合は 2 を入力。バン加速は 3 を入力 >> ";
+                std::cout << "前後に動かす場合は 1 を入力。曲がる場合は 2 を入力。バン加速は 3 を入力。シャットダウンは 4 >> ";
                 int num;
                 std::cin >> num;
                 double x, theta, r, a, max_vel;
@@ -534,6 +549,10 @@ public:
                         std::cin >> a;
                         ba->setup(max_vel, a);
                         this->latch = 2;
+                        break;
+                    case 4:
+                        std::exit(1);
+                        return false;
                 }
                 std::cout << "移動中・・・\n";
             }
@@ -695,12 +714,8 @@ public:
           }
         }
 
-        // if ((ss.left_wheel_speed + ss.right_wheel_speed)/2.0 > 1.0) {
-        //     this->segway_rmp->set_mps_to_counts(-1);
-        // }
-        // else if ((ss.left_wheel_speed + ss.right_wheel_speed)/2.0 < 1.0) {
-        //     this->segway_rmp->set_mps_to_counts(1);
-        // }
+        this->v1 = this->v2;
+        this->v2 = (ss.left_wheel_speed + ss.right_wheel_speed) / 2.0;
 
         this->sss_msg.segway.pitch_angle = ss.pitch * degrees_to_radians;
         this->sss_msg.segway.pitch_rate = ss.pitch_rate * degrees_to_radians;
@@ -708,6 +723,7 @@ public:
         this->sss_msg.segway.roll_rate = ss.roll_rate * degrees_to_radians;
         this->sss_msg.segway.left_wheel_velocity = ss.left_wheel_speed;
         this->sss_msg.segway.right_wheel_velocity = ss.right_wheel_speed;
+        this->sss_msg.segway.accel = (v2 - v1)/dt;
         this->sss_msg.segway.yaw_rate = ss.yaw_rate * degrees_to_radians;
         this->sss_msg.segway.servo_frames = ss.servo_frames;
         this->sss_msg.segway.left_wheel_displacement =
@@ -1115,6 +1131,8 @@ private:
     int latch;
 
     BanAccel* ba;
+
+    double v1, v2;
 }; // class SegwayRMPNode
 
 // Callback wrapper
