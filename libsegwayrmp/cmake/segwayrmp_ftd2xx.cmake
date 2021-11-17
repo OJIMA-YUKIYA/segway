@@ -15,11 +15,17 @@ if(UNIX)
   # If Linux
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     list(APPEND SEGWAYRMP_LINK_LIBS
-      ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
-      dl
-      rt
-      pthread
+    ${PROJECT_SOURCE_DIR}/lib/libftd2xx.a
+    dl
+    rt
+    pthread
     )
+    # list(APPEND SEGWAYRMP_LINK_LIBS
+    #   ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
+    #   dl
+    #   rt
+    #   pthread
+    # )
     # list(APPEND SEGWAYRMP_LINK_LIBS
     #   ${PROJECT_SOURCE_DIR}/ftd2xx/linux/arm64/libftd2xx.a
     #   dl
