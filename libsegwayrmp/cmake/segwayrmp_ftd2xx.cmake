@@ -26,12 +26,12 @@ if(UNIX)
     #   rt
     #   pthread
     # )
-    message(${bitness})
+    # message(${bitness})
     # Copy this file for rosmake to find it
-    file(
-      COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
-      DESTINATION ${PROJECT_SOURCE_DIR}/lib/
-    )
+    # file(
+    #   COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/${bitness}/libftd2xx.a
+    #   DESTINATION ${PROJECT_SOURCE_DIR}/lib/
+    # )
     # file(
     #   COPY ${PROJECT_SOURCE_DIR}/ftd2xx/linux/arm64/libftd2xx.a
     #   DESTINATION ${PROJECT_SOURCE_DIR}/lib/

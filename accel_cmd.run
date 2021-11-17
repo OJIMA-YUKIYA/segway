@@ -1,0 +1,2 @@
+#!/bin/bash
+./devel/lib/segway_rmp/accel_cmd

@@ -1,0 +1,8 @@
+#!/bin/bash
+killall socat
+killall momo
+rm momo_ser*
+socat pty,echo=0,raw,link=./momo_serialport_out  pty,raw,echo=0,link=./webrtc_momo/momo_serialport_in &
+cd webrtc_momo
+./momo --no-audio-device --serial ./momo_serialport_in,9600 test &
+cd ..

@@ -45,12 +45,17 @@ catkin_package(
 
 
 add_executable(segway_rmp_node src/segway_rmp_node.cpp)
+add_executable(accel_cmd src/accel_cmd.cpp)
 
 message("libsegwayrmp_LIBRARIES: ${libsegwayrmp_LIBRARIES}")
 
 add_dependencies(segway_rmp_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-set(libsegwayrmp_LIBRARIES ${PROJECT_SOURCE_DIR}/../../libsegwayrmp/lib/libftd2xx.a;${PROJECT_SOURCE_DIR}/../../libsegwayrmp/lib/libsegwayrmp.so)
+# set(libsegwayrmp_LIBRARIES ${PROJECT_SOURCE_DIR}/../../libsegwayrmp/lib/libftd2xx.a;${PROJECT_SOURCE_DIR}/../../libsegwayrmp/lib/libsegwayrmp.so)
+list(APPEND libsegwayrmp_LIBRARIES
+    ${PROJECT_SOURCE_DIR}/../../libsegwayrmp/lib/libftd2xx.a
+    ${PROJECT_SOURCE_DIR}/../../libsegwayrmp/lib/libsegwayrmp.so
+)
 
 target_link_libraries(segway_rmp_node
   ${Boost_LIBRARIES}
@@ -58,7 +63,19 @@ target_link_libraries(segway_rmp_node
   ${catkin_LIBRARIES}
 )
 
+target_link_libraries(accel_cmd
+  # ${Boost_LIBRARIES}
+  # ${libsegwayrmp_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+
 install(TARGETS segway_rmp_node
+   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS accel_cmd
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

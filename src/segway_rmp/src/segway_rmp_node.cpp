@@ -37,6 +37,7 @@
 #include <boost/thread.hpp>
 
 #include <std_msgs/String.h>
+#include <std_msgs/Float64.h>
 
 #include "segway_rmp/VelocityStatus.h"
 
@@ -578,24 +579,6 @@ public:
         if (ros::ok()) {
             boost::mutex::scoped_lock lock(this->m_mutex);
 
-            // Update the linear velocity based on the linear acceleration limits
-            // if (this->linear_vel < this->target_linear_vel) {
-            //     // Must increase linear speed
-            //     if (this->linear_pos_accel_limit == 0.0
-            //         || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
-            //     )
-            //         this->linear_vel = this->target_linear_vel;
-            //     else
-            //          this->linear_vel += this->linear_pos_accel_limit;
-            // } else if (this->linear_vel > this->target_linear_vel) {
-            //     // Must decrease linear speed
-            //     if (this->linear_neg_accel_limit == 0.0
-            //         || this->linear_vel - this->target_linear_vel < this->linear_neg_accel_limit)
-            //         this->linear_vel = this->target_linear_vel;
-            //     else
-            //          this->linear_vel -= this->linear_neg_accel_limit;
-            // }
-
             Lavel la;
 
             if (this->latch == 1) {
@@ -605,67 +588,6 @@ public:
                 la = this->ba->controller();
             }
 
-            // if (this->r != 0 || this->theta != 0) {
-            //     ret = rotate();
-            // }
-
-            // segway_rmp::VelocityStatus vs;
-            // vs.section = ret;
-            // vs.T1 = this->T1;
-            // vs.T2 = this->T2;
-            // vs.T3 = this->T3;
-            // vs.t = this->ct;
-            // vs.velocity = this->linear_vel;
-            // vs.vm = this->vm;
-            // vs.am = this->am;
-            // vs.total_time = 4 * this->T1 + 2 * this->T2 + this->T3;
-            // vs.x = 2.0*this->am*pow(this->T1, 2) + 3.0*this->am*this->T1*this->T2 + this->am*pow(this->T2, 2) + vm*this->T3;
-            // vel_pub.publish(vs);
-
-            // if (this->linear_vel < this->target_linear_vel) {
-            //     // Must increase linear speed
-            //     if (this->linear_pos_accel_limit == 0.0
-            //         || this->target_linear_vel - this->linear_vel < this->linear_pos_accel_limit
-            //     )
-            //         this->linear_vel = this->target_linear_vel;
-            //     else
-            //         //  this->linear_vel += this->linear_pos_accel_limit
-            //         increase_vel();
-            // } else if (this->linear_vel > this->target_linear_vel) {
-            //     // Must decrease linear speed
-            //     if (this->linear_neg_accel_limit == 0.0
-            //         || this->linear_vel - this->target_linear_vel < this->linear_neg_accel_limit)
-            //         this->linear_vel = this->target_linear_vel;
-            //     else
-            //          this->linear_vel -= this->linear_neg_accel_limit;
-            // }
-
-
-            // Update the angular velocity based on the angular acceleration limits
-            // if (this->angular_vel < this->target_angular_vel) {
-            //     // Must increase angular speed
-            //     if (this->angular_pos_accel_limit == 0.0
-            //         || this->target_angular_vel - this->angular_vel < this->angular_pos_accel_limit)
-            //         this->angular_vel = this->target_angular_vel;
-            //     else
-            //          this->angular_vel += this->angular_pos_accel_limit;
-            // } else if (this->angular_vel > this->target_angular_vel) {
-            //     // Must decrease angular speed
-            //     if (this->angular_neg_accel_limit == 0.0
-            //         || this->angular_vel - this->target_angular_vel < this->angular_neg_accel_limit)
-            //         this->angular_vel = this->target_angular_vel;
-            //     else
-            //          this->angular_vel -= this->angular_neg_accel_limit;
-            // }
-
-            // this->angular_vel = this->linear_vel / this->r * radians_to_degrees;
-
-            // ROS_DEBUG("Sending move command: linear velocity = %f, angular velocity = %f",
-            //    this->linear_vel, this->angular_vel);
-
-            // if (this->linear_vel == 0 || this->angular_vel == 0) {
-            //    ROS_INFO("Sending Segway Command: l=%f a=%f", this->linear_vel, this->angular_vel);
-            // }
             try {
                 this->segway_rmp->move(la.linear_vel, la.angular_vel);
             } catch (std::exception& e) {
@@ -870,11 +792,26 @@ public:
                 true);
     }
 
+    void cmd_accelCallback(const std_msgs::Float64 msg) {
+        if (!this->connected)
+            return;
+        boost::mutex::scoped_lock lock(m_mutex);
+        if (this->latch) {
+            return;
+        }
+        ba->setup(1, msg.data);
+        this->latch = 2;
+        std::cout << "移動中・・・\n";
+        return;
+    }
+
 private:
     // Function
     void setupROSComms() {
         // Subscribe to command velocities
         this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
+        this->cmd_accelSubscriber = n->subscribe("accel_cmd", 1000, &SegwayRMPNode::cmd_accelCallback, this);
+
         // Advertise the SegwayStatusStamped
         this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
         // Advertise the Odometry Msg
@@ -1059,7 +996,7 @@ private:
 
     ros::Timer keep_alive_timer;
 
-    ros::Subscriber cmd_velSubscriber;
+    ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber;
     ros::Publisher segway_status_pub;
     ros::Publisher odom_pub;
     ros::Publisher vel_pub;
