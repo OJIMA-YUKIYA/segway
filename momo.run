@@ -1,8 +1,33 @@
 #!/bin/bash
-killall socat
-killall momo
-rm momo_ser*
+
+# ps | grep momo | grep -v momo.run
+if [[ $(ps | grep momo | grep -v 'momo.run') ]]; then
+    killall momo
+fi
+
+if [[ $(ps | grep socat) ]]; then
+    killall socat
+fi
+
+if [ -e ./momo_ser* ]; then
+    rm momo_ser*
+fi
+
+if [ -e ./webrtc_momo/momo_ser* ]; then
+    rm ./webrtc_momo/momo_ser*
+fi
+
 socat pty,echo=0,raw,link=./momo_serialport_out  pty,raw,echo=0,link=./webrtc_momo/momo_serialport_in &
 cd webrtc_momo
-./momo --no-audio-device --serial ./momo_serialport_in,9600 test &
+if [ $# -eq 0 ]; then
+    cd x64
+elif [ $1 = "x64" ]; then
+    cd x64
+elif [ $1 = "jetson" -o $1 = "arm64" ]; then
+    cd arm64
+fi
+
+./momo --no-audio-device --serial ../momo_serialport_in,9600 test &
 cd ..
+
+echo "start momo"
