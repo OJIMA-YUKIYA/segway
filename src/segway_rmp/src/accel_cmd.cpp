@@ -13,12 +13,12 @@ int main(int argc, char** argv) {
 
     int fd;
     while (ros::ok()) {
-        fd = open("/home/ojima/segway/momo_serialport_out", O_RDONLY);
+        fd = open("/home/tristar/segway/serial_out", O_RDONLY);
         if (fd < 0) {
             std::cout << "./momo.run を実行してください。";
         }
         else {
-            std::cout << "シリアルポート /home/ojima/segway/momo_serialport_out を発見\n";
+            std::cout << "momo のシリアルポート /home/tristar/segway/serial_out を発見\n";
             break;
         }
         ros::Duration(1).sleep();

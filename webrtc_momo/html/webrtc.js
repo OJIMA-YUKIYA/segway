@@ -67,9 +67,7 @@ function connect() {
   else {
     console.warn('peer connection already exists.');
   }
-  // console.log('hello');
   console.groupEnd();
-  // console.log('hello');
 }
 
 function disconnect() {
@@ -175,6 +173,7 @@ function prepareNewConnection() {
   dataChannel.onmessage = function (event) {
     console.log("Got Data Channel Message:", new TextDecoder().decode(event.data));
   };
+
   return peer;
 }
 

@@ -17,28 +17,23 @@ if [ -e ./webrtc_momo/momo_ser* ]; then
     rm ./webrtc_momo/momo_ser*
 fi
 
-socat pty,echo=0,raw,link=./momo_serialport_out  pty,raw,echo=0,link=./webrtc_momo/momo_serialport_in &
+socat pty,echo=0,raw,link=./serial_out  pty,raw,echo=0,link=./webrtc_momo/serial_in &
+
 cd webrtc_momo
 if [ $# -eq 0 ]; then
-    cd x64
-elif [ $1 = "x64" ]; then
-    cd x64
-elif [ $1 = "jetson" -o $1 = "arm64" ]; then
-    cd arm64
-else
-    cd x64
-fi
-
-if [ $# -eq 1 ]; then
+    ./momo_arm64 --no-audio-device --serial ./serial_in,9600 test
+elif [ $# -eq 1 ]; then
     if [ $1 = "--no-video-device" ]; then
-        ./momo --no-audio-device $1 --serial ../momo_serialport_in,9600 test &
+        ./momo_arm64 --no-audio-device $1 --serial ./serial_in,9600 test &
+    elif [ $1 = "x64" ]; then
+        ./momo_x64 --no-audio-device --serial ./serial_in,9600 test &
     fi
 elif [ $# -eq 2 ]; then
-    if [ $2 = "--no-video-device" ]; then
-        ./momo --no-audio-device $2 --serial ../momo_serialport_in,9600 test &
+    if [ $1 = "x64" $2 = "--no-video-device" ]; then
+        ./momo_x64 --no-audio-device $2 --serial ./serial_in,9600 test &
     fi
 else
-    ./momo --no-audio-device --serial ../momo_serialport_in,9600 test &
+    ./momo_arm64 --no-audio-device --serial ./serial_in,9600 test &
 fi
 
 cd ..
