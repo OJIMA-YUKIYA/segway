@@ -10,6 +10,8 @@
 
 #include "segway_rmp/VelocityStatus.h"
 
+const char* serialPath = "/home/tristar/segway/serial_out";
+
 class A {
 public:
     A() {
@@ -74,8 +76,8 @@ public:
 
     int run(void) {
         while (ros::ok()) {
-            this->fd_read = open("/home/ojima/segway/serial_out", O_RDONLY);
-            this->fd_write = open("/home/ojima/segway/serial_out", O_WRONLY);
+            this->fd_read = open(serialPath, O_RDONLY);
+            this->fd_write = open(serialPath, O_WRONLY);
             if (this->fd_read < 0 && this->fd_write < 0) {
                 std::cout << "./momo.run を実行してください。";
             }
