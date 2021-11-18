@@ -33,7 +33,7 @@ if [ $# -eq 1 ]; then
     if [ $1 = "--no-video-device" ]; then
         ./momo --no-audio-device $1 --serial ../momo_serialport_in,9600 test &
     fi
-elif [ $# -eq 2]; then
+elif [ $# -eq 2 ]; then
     if [$2 = "--no-video-device" ]; then
         ./momo --no-audio-device $2 --serial ../momo_serialport_in,9600 test &
     fi
