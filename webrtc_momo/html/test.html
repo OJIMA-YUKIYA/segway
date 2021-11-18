@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="shortcut icon" href="#">
+    <link rel="icon" type='image/png' href="../momo_icon.png">
     <title>Momo P2P</title>
   </head>
   <body>
@@ -17,7 +17,7 @@
       <input type="button" onclick="connect();" value="Connect">
       <input type="button" onclick="disconnect();" value="Disconnect">
       <input type="button" onclick="play();" value="Play"><br>
-      加速度 
+      加速度
       <input type="text" id="data_text">
       <input type="button" onclick="sendDataChannel();" value="Send">
     </div>
@@ -25,5 +25,6 @@
       <video id="remote_video" autoplay style="border: 3px solid gray;"></video>
     </div>
     <script type='text/javascript' src='./webrtc.js'></script>
+    <div class="contents" id="output"></div>
   </body>
 </html>

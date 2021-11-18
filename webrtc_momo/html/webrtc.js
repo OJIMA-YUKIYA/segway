@@ -171,7 +171,10 @@ function prepareNewConnection() {
   peer.addTransceiver('audio', {direction: 'recvonly'});
 
   dataChannel.onmessage = function (event) {
-    console.log("Got Data Channel Message:", new TextDecoder().decode(event.data));
+    let str = new TextDecoder().decode(event.data);
+    console.log("Got Data Channel Message:", str);
+    let target = document.getElementById("output");
+    target.innerHTML = str;
   };
 
   return peer;
