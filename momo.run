@@ -21,7 +21,7 @@ socat pty,echo=0,raw,link=./serial_out  pty,raw,echo=0,link=./webrtc_momo/serial
 
 cd webrtc_momo
 if [ $# -eq 0 ]; then
-    ./momo_arm64 --no-audio-device --no-video-device --serial ./serial_in,9600 test
+    ./momo_arm64 --no-audio-device --no-video-device --serial ./serial_in,9600 test &
 elif [ $# -eq 1 ]; then
     if [ $1 = "video" ]; then
         ./momo_arm64 --no-audio-device --serial ./serial_in,9600 test &
