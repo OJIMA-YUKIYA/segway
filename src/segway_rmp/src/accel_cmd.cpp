@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
             std::cout << "momo のシリアルポート /home/tristar/segway/serial_out を発見\n";
             break;
         }
-        ros::Duration(1).sleep();
+        ros::Duration(3).sleep();
     }
 
     int req_size = 50;

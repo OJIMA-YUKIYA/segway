@@ -40,7 +40,7 @@ include(cmake/segwayrmp_serial.cmake)
 include(cmake/segwayrmp_ftd2xx.cmake)
 
 # Configure Graphical User Interface
-include(cmake/segwayrmp_gui.cmake)
+# include(cmake/segwayrmp_gui.cmake)
 
 ## Build the segwayrmp project
 
@@ -50,15 +50,15 @@ target_link_libraries(segwayrmp ${SEGWAYRMP_LINK_LIBS})
 
 ## Build Examples
 
-set(SEGWAYRMP_EXAMPLE_SRCS examples/segwayrmp_example.cc)
-set(SEGWAYRMP_EXAMPLE_LINK_LIBS segwayrmp)
-include(cmake/segwayrmp_examples.cmake)
+# set(SEGWAYRMP_EXAMPLE_SRCS examples/segwayrmp_example.cc)
+# set(SEGWAYRMP_EXAMPLE_LINK_LIBS segwayrmp)
+# include(cmake/segwayrmp_examples.cmake)
 
 ## Build Tests
 
-set(SEGWAYRMP_TEST_SRCS tests/segwayrmp_tests.cc)
-set(SEGWAYRMP_TEST_LINK_LIBS segwayrmp)
-include(cmake/segwayrmp_tests.cmake)
+# set(SEGWAYRMP_TEST_SRCS tests/segwayrmp_tests.cc)
+# set(SEGWAYRMP_TEST_LINK_LIBS segwayrmp)
+# include(cmake/segwayrmp_tests.cmake)
 
 ## Setup Install/Uninstall Targets
 
