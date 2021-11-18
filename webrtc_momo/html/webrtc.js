@@ -171,10 +171,31 @@ function prepareNewConnection() {
   peer.addTransceiver('audio', {direction: 'recvonly'});
 
   dataChannel.onmessage = function (event) {
-    let str = new TextDecoder().decode(event.data);
+    let msg = new TextDecoder().decode(event.data);
+    let str = msg.substr(4, msg.length);
+    let show = "";
     console.log("Got Data Channel Message:", str);
-    let target = document.getElementById("output");
-    target.innerHTML = str;
+    for (let i = 0; i < str.length; i++) {
+        // console.log(str[i]);
+        if (str[i] == "?") {
+            show = show + '\n';
+        }
+        else {
+            show = show + str[i];
+        }
+    }
+
+    if (msg.substr(0, 4) == 'sgvs') {
+        console.log('sgvs');
+        var target = document.getElementById("sgvs");
+        target.innerHTML = show;
+    }
+    else if (msg.substr(0, 4) == 'sgss') {
+        console.log('sgss');
+        var target = document.getElementById("sgss");
+        target.innerHTML = show;
+    }
+    console.log(show);
   };
 
   return peer;

@@ -478,7 +478,7 @@ public:
         // Setup keep alive timer
         this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
 
-        ros::AsyncSpinner spinner(1);
+        ros::AsyncSpinner spinner(3);
         spinner.start();
 
 
