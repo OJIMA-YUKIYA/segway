@@ -28,8 +28,10 @@ elif [ $# -eq 1 ]; then
     elif [ $1 = "x64" ]; then
         ./momo_x64 --no-audio-device --serial ./serial_in,9600 test &
     fi
-elif [ $# -eq 2 ]; then
-    if [ $1 = "x64" $2 = "--no-video-device" ]; then
+elif [ $# -gt 2 ]; then
+    if [ $1 = "video" ]; then
+        ./momo_arm64 --no-audio-device $2 --serial ./serial_in,9600 test &
+    elif [ $1 = "x64" ]; then
         ./momo_x64 --no-audio-device $2 --serial ./serial_in,9600 test &
     fi
 else

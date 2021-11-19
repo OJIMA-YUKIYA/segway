@@ -10,7 +10,8 @@
 
 #include "segway_rmp/VelocityStatus.h"
 
-const char* serialPath = "/home/tristar/segway/serial_out";
+#include "serialPathConfig.h"
+
 
 class A {
 public:
@@ -25,16 +26,16 @@ public:
         ROS_INFO("write");
         std::stringstream ss;
         ss << "sgvs";
-        ss << "section: " << vs.section << '?';
-        ss << "x: " << vs.x << '?';
-        ss << "t: " << vs.t << '?';
-        ss << "total_time: " << vs.total_time << '?';
-        ss << "velocity: " << vs.velocity << '?';
-        ss << "max velocity: " << vs.vm << '?';
-        ss << "max accel: " << vs.am << '?';
-        ss << "T1: " << vs.T1 << '?';
-        ss << "T2: " << vs.T2 << '?';
-        ss << "T3: " << vs.T3 << '\n';
+        // ss << "section: " << vs.section << '?';
+        // ss << "x: " << vs.x << '?';
+        // ss << "t: " << vs.t << '?';
+        // ss << "total_time: " << vs.total_time << '?';
+        ss << "velocity: " << vs.velocity << '\n';
+        // ss << "max velocity: " << vs.vm << '?';
+        // ss << "max accel: " << vs.am << '?';
+        // ss << "T1: " << vs.T1 << '?';
+        // ss << "T2: " << vs.T2 << '?';
+        // ss << "T3: " << vs.T3 << '\n';
 
         std::string str = ss.str();
         char buf_ptr[255];
@@ -62,7 +63,7 @@ public:
         }
         buf_ptr[read_size] = '\0';
         std::string str = std::string(buf_ptr);
-        std::cout << count << " read_size: " << read_size << " msg: " << str << '\n';
+        std::cout << "\nread_size: " << read_size << " read_message: " << str << '\n';
         if (read_size == 1 && str.at(0) == 'q') {
             exit(1);
             close(this->fd_write);
@@ -76,8 +77,8 @@ public:
 
     int run(void) {
         while (ros::ok()) {
-            this->fd_read = open(serialPath, O_RDONLY);
-            this->fd_write = open(serialPath, O_WRONLY);
+            this->fd_read = open(SERIAL_PATH, O_RDONLY);
+            this->fd_write = open(SERIAL_PATH, O_WRONLY);
             if (this->fd_read < 0 && this->fd_write < 0) {
                 std::cout << "./momo.run を実行してください。";
             }

@@ -1,6 +1,19 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(segway_rmp)
 
+set(serial_PATH "${PROJECT_SOURCE_DIR}/../../serial_out")
+
+message("PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR}")
+
+configure_file(
+    "${PROJECT_SOURCE_DIR}/serialPathConfig.h.in"
+    "${PROJECT_BINARY_DIR}/serialPathConfig.h"
+)
+
+include_directories(
+    ${PROJECT_BINARY_DIR}
+)
+
 find_package(catkin REQUIRED
   COMPONENTS
     geometry_msgs

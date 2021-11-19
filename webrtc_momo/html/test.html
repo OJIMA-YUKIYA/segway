@@ -14,19 +14,20 @@
         <option value="VP9">VP9</option>
         <option value="AV1">AV1</option>
       </select>
-      <input type="button" onclick="connect();" value="Connect">
-      <input type="button" onclick="disconnect();" value="Disconnect">
-      <input type="button" onclick="play();" value="Play"><br>
-      加速度
-      <input type="text" id="data_text">
-      <input type="button" onclick="sendDataChannel();" value="Send">
+      <input type="button" onclick="connect();" value="接続">
+      <input type="button" onclick="disconnect();" value="切断">
+      <!-- <input type="button" onclick="play();" value="Play"><br> -->
     </div>
     <div>
       <video id="remote_video" autoplay style="border: 3px solid gray;"></video>
     </div>
+    加速度 <input type="text" id="data_text"> (m/s^2)　
+    <input type="button" onclick="sendDataChannel();" value="送信">
+    <br>
+    <br>
+    ↓セグウェイから受け取った情報
     <script type='text/javascript' src='./webrtc.js'></script>
-    segway velocity status
-    <font size="3">
+    <font size="4">
         <pre><div id="sgvs"></div></pre>
     </font>
     <font size="3">
