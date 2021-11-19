@@ -10,7 +10,7 @@
 
 #include "segway_rmp/VelocityStatus.h"
 
-#include "serialPathConfig.h"
+#include "serialPathConfig.h" // SERIAL_PATH を定義
 
 
 class A {
@@ -77,7 +77,7 @@ public:
 
     int run(void) {
         while (ros::ok()) {
-            this->fd_read = open(SERIAL_PATH, O_RDONLY);
+            this->fd_read = open(SERIAL_PATH, O_RDONLY); // SERIAL_PATH は serialPathConfig.h.in にて定義されている。
             this->fd_write = open(SERIAL_PATH, O_WRONLY);
             if (this->fd_read < 0 && this->fd_write < 0) {
                 std::cout << "./momo.run を実行してください。";
