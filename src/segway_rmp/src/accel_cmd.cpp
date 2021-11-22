@@ -103,7 +103,7 @@ public:
             std::cout << "accel_cmd を終了\n";
             close(this->fd_write);
             close(this->fd_read);
-            exit(1);
+            exit(0);
         }
 
         if (read_size > 4 && str.substr(0, 4) == "acce") {
