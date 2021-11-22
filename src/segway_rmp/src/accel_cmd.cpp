@@ -65,9 +65,10 @@ public:
         std::string str = std::string(buf_ptr);
         std::cout << "\nread_size: " << read_size << " read_message: " << str << '\n';
         if (read_size == 1 && str.at(0) == 'q') {
-            exit(1);
+            std::cout << "accel_cmd を終了\n";
             close(this->fd_write);
             close(this->fd_read);
+            exit(1);
         }
         std_msgs::Float64 msg;
         msg.data = std::stod(str);
