@@ -98,7 +98,7 @@ public:
         }
         buf_ptr[read_size] = '\0';
         std::string str = std::string(buf_ptr);
-        std::cout << "\nread_size: " << read_size << " read_message: " << str << '\n';
+        std::cout << "\nread_size: " << read_size << " message: " << str << '\n';
         if (read_size == 4 && str == "quit") {
             std::cout << "accel_cmd を終了\n";
             close(this->fd_write);
@@ -109,7 +109,6 @@ public:
         if (read_size > 4 && str.substr(0, 4) == "acce") {
             std_msgs::Float64 msg;
             msg.data = std::stod(str.substr(4, str.size()));
-            std::cout << msg.data << '\n';
             this->accel_pub.publish(msg);
         }
         // close(fd_read);
