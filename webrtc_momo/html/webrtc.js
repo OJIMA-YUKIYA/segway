@@ -403,7 +403,8 @@ function play() {
 }
 
 function sendDataChannel() {
-  let textData = dataTextInput.value;
+  let textData = "acce";
+  textData = textData + dataTextInput.value;
   if (textData.length == 0) {
     return;
   }
@@ -412,4 +413,8 @@ function sendDataChannel() {
   }
   dataChannel.send(new TextEncoder().encode(textData));
   dataTextInput.value = "";
+}
+
+function quit_accel_cmd() {
+    dataChannel.send(new TextEncoder().encode("quit"));
 }

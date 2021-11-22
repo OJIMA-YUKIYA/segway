@@ -99,15 +99,18 @@ public:
         buf_ptr[read_size] = '\0';
         std::string str = std::string(buf_ptr);
         std::cout << "\nread_size: " << read_size << " read_message: " << str << '\n';
-        if (read_size == 1 && str.at(0) == 'q') {
+        if (read_size == 4 && str == "quit") {
             std::cout << "accel_cmd を終了\n";
             close(this->fd_write);
             close(this->fd_read);
             exit(1);
         }
-        std_msgs::Float64 msg;
-        msg.data = std::stod(str);
-        accel_pub.publish(msg);
+
+        if (read_size > 4 && str.substr(0, 3) == "acce") {
+            std_msgs::Float64 msg;
+            msg.data = std::stod(str.substr(4, str.size() - 1));
+            this->accel_pub.publish(msg);
+        }
         // close(fd_read);
     }
 

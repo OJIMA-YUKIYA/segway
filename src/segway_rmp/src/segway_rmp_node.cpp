@@ -799,7 +799,7 @@ public:
         if (this->latch) {
             return;
         }
-        ba->setup(1, msg.data);
+        ba->setup(0.5, msg.data);
         this->latch = 2;
         std::cout << "移動中・・・\n";
         return;
