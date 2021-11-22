@@ -16,10 +16,10 @@ if [[ $(ps | grep socat) ]]; then
     killall socat
 fi
 
-if [[ $(ps | grep accel_cmd) ]]; then
-    killall accel_cmd
-fi
-
 if [[ $(ps | grep cmder.run) ]]; then
     killall cmder.run
+fi
+
+if [[ $(ps | grep accel_cmd) ]]; then
+    killall accel_cmd
 fi
