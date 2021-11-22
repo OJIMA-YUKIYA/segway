@@ -106,9 +106,10 @@ public:
             exit(1);
         }
 
-        if (read_size > 4 && str.substr(0, 3) == "acce") {
+        if (read_size > 4 && str.substr(0, 4) == "acce") {
             std_msgs::Float64 msg;
-            msg.data = std::stod(str.substr(4, str.size() - 1));
+            msg.data = std::stod(str.substr(4, str.size()));
+            std::cout << msg.data << '\n';
             this->accel_pub.publish(msg);
         }
         // close(fd_read);

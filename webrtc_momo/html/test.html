@@ -3,6 +3,22 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" type='image/png' href="../momo_icon.png">
+    <style type="text/css">
+    main div {
+        margin: 0;
+        padding: 0;
+    }
+    .VelocityStatus {
+        float: left;
+        width: 50%;
+        background-color: #ddd;
+    }
+    .SegwayStatusStamped {
+        float: right;
+        width: 50%;
+        background-color: #eee;
+    }
+    </style>
     <title>Momo P2P</title>
   </head>
   <body>
@@ -22,20 +38,24 @@
       <video id="remote_video" autoplay style="border: 3px solid gray;"></video>
     </div>
     加速度 <input type="text" id="data_text"> (m/s^2)　
-    <input type="button" onclick="sendDataChannel();" value="送信"><br>
-    <input type="button" onclick="quit_accel_cmd();" value="accel_cmd を終了">
-    <br>
-    <br>
-    ↓セグウェイから受け取った情報
-    <br>
+    <input type="button" onclick="sendDataChannel();" value="送信">　　<input type="button" onclick="quit_accel_cmd();" value="accel_cmd を終了"><br><br>
+    ↓セグウェイから受け取った情報<br><br>
+    <main>
+        <div class="VelocityStatus">
+            VelocityStatus
+            <font size="4">
+                <pre><div id="sgvs"></div></pre>
+            </font>
+            <br>
+        </div>
+        <div class="SegwayStatusStamped">
+            SegwayStatusStamped
+            <font size="4">
+                <pre><div id="sgss"></div></pre>
+            </font>
+            <br>
+        </div>
+    </main>
     <script type='text/javascript' src='./webrtc.js'></script>
-    VelocityStatus
-    <font size="4">
-        <pre><div id="sgvs"></div></pre>
-    </font>
-    SegwayStatusStamped
-    <font size="4">
-        <pre><div id="sgss"></div></pre>
-    </font>
   </body>
 </html>
