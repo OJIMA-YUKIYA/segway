@@ -804,7 +804,7 @@ public:
         if (this->latch) {
             return;
         }
-        ba->setup(msg.max_vel, msg.accel);
+        ba->setup(msg.x, msg.accel);
         this->latch = 2;
         std::cout << "移動中・・・\n";
         return;

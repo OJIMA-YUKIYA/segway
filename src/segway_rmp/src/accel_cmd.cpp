@@ -113,7 +113,7 @@ public:
             str = str.substr(4, str.size());
             int i = str.find('+');
             msg.accel = std::stod(str.substr(0, i));
-            msg.max_vel = std::stod(str.substr(i, str.size()));
+            msg.x = std::stod(str.substr(i, str.size()));
             this->accel_pub.publish(msg);
         }
         // close(fd_read);
