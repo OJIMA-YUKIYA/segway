@@ -10,6 +10,7 @@
 
 #include "segway_rmp/VelocityStatus.h"
 #include "segway_rmp/SegwayStatusStamped.h"
+#include "segway_rmp/AccelCmd.h"
 
 #include "serialPathConfig.h" // SERIAL_PATH を定義
 
@@ -18,33 +19,33 @@ class A {
 public:
     A() {
         n = new ros::NodeHandle("~");
-        this->accel_pub = this->n->advertise<std_msgs::Float64>("accel", 100);
+        this->accel_pub = this->n->advertise<segway_rmp::AccelCmd>("accel", 100);
         this->VelocityStatus_sub = this->n->subscribe("velocity_status", 100, &A::velocity_status_callback, this);
         this->SegwayStatus_sub = this->n->subscribe("segway_status", 500, &A::segway_status_callback, this);
     }
     void segway_status_callback(const segway_rmp::SegwayStatusStamped &sss_msg) {
         std::stringstream ss;
         ss << "sgss";
-        ss << "ptich angle: " << sss_msg.segway.pitch_angle << '?';
-        ss << "ptich rate: " << sss_msg.segway.pitch_rate << '?';
-        ss << "roll angle: " << sss_msg.segway.roll_angle << '?';
-        ss << "roll rate: " << sss_msg.segway.roll_rate << '?';
-        ss << "left wheel velocity: " << sss_msg.segway.left_wheel_velocity << '?';
-        ss << "right wheel velocity: " << sss_msg.segway.right_wheel_velocity << '?';
-        ss << "accel: " << sss_msg.segway.accel << '?';
-        ss << "yaw rate: " << sss_msg.segway.yaw_rate << '?';
-        ss << "servo frames: " << sss_msg.segway.servo_frames << '?';
-        ss << "left wheel displacement: " << sss_msg.segway.left_wheel_displacement << '?';
-        ss << "right wheel velocity: " << sss_msg.segway.right_wheel_displacement << '?';
-        ss << "forward displacement: " << sss_msg.segway.forward_displacement << '?';
-        ss << "yaw displacement: " << sss_msg.segway.yaw_displacement << '?';
-        ss << "left motor torque: " << sss_msg.segway.left_motor_torque << '?';
-        ss << "right motor torque: " << sss_msg.segway.right_motor_torque << '?';
-        ss << "operation mode: " << sss_msg.segway.operation_mode << '?';
-        ss << "gain schedule: " << sss_msg.segway.gain_schedule << '?';
-        ss << "ui battery: " << sss_msg.segway.ui_battery << '?';
-        ss << "powerbase battery: " << sss_msg.segway.powerbase_battery << '?';
-        ss << "motors enabled: " << sss_msg.segway.motors_enabled << '\n';
+        // ss << "ptich angle: " << sss_msg.segway.pitch_angle << '?';
+        // ss << "ptich rate: " << sss_msg.segway.pitch_rate << '?';
+        // ss << "roll angle: " << sss_msg.segway.roll_angle << '?';
+        // ss << "roll rate: " << sss_msg.segway.roll_rate << '?';
+        ss << "左車輪の速度: " << sss_msg.segway.left_wheel_velocity << "(m/s)?";
+        ss << "右車輪の速度: " << sss_msg.segway.right_wheel_velocity << "(m/s)?";
+        ss << "加速度: " << sss_msg.segway.accel << "(m/s^2)\n";
+        // ss << "yaw rate: " << sss_msg.segway.yaw_rate << '?';
+        // ss << "servo frames: " << sss_msg.segway.servo_frames << '?';
+        // ss << "left wheel displacement: " << sss_msg.segway.left_wheel_displacement << '?';
+        // ss << "right wheel velocity: " << sss_msg.segway.right_wheel_displacement << '?';
+        // ss << "forward displacement: " << sss_msg.segway.forward_displacement << '?';
+        // ss << "yaw displacement: " << sss_msg.segway.yaw_displacement << '?';
+        // ss << "left motor torque: " << sss_msg.segway.left_motor_torque << '?';
+        // ss << "right motor torque: " << sss_msg.segway.right_motor_torque << '?';
+        // ss << "operation mode: " << sss_msg.segway.operation_mode << '?';
+        // ss << "gain schedule: " << sss_msg.segway.gain_schedule << '?';
+        // ss << "ui battery: " << sss_msg.segway.ui_battery << '?';
+        // ss << "powerbase battery: " << sss_msg.segway.powerbase_battery << '?';
+        // ss << "motors enabled: " << sss_msg.segway.motors_enabled << '\n';
 
         std::string str = ss.str();
         char buf_ptr[500];
@@ -61,16 +62,16 @@ public:
         ROS_INFO("write");
         std::stringstream ss;
         ss << "sgvs";
-        ss << "section: " << vs.section << '?';
-        ss << "x: " << vs.x << '?';
-        ss << "t: " << vs.t << '?';
-        ss << "total_time: " << vs.total_time << '?';
-        ss << "velocity: " << vs.velocity << '?';
-        ss << "max velocity: " << vs.vm << '?';
-        ss << "max accel: " << vs.am << '?';
-        ss << "T1: " << vs.T1 << '?';
-        ss << "T2: " << vs.T2 << '?';
-        ss << "T3: " << vs.T3 << '\n';
+        // ss << "section: " << vs.section << '?';
+        // ss << "x: " << vs.x << '?';
+        ss << "経過時間: " << vs.t << " 秒?";
+        // ss << "total_time: " << vs.total_time << '?';
+        ss << "送った速度: " << vs.velocity << " (m/s)?";
+        ss << "最大速度: " << vs.vm << " (m/s)?";
+        ss << "理想加速度: " << vs.am << " (m/s^2)\n";
+        // ss << "T1: " << vs.T1 << '?';
+        // ss << "T2: " << vs.T2 << '?';
+        // ss << "T3: " << vs.T3 << '\n';
 
         std::string str = ss.str();
         char buf_ptr[255];
@@ -105,10 +106,12 @@ public:
             close(this->fd_read);
             exit(0);
         }
-
         if (read_size > 4 && str.substr(0, 4) == "acce") {
-            std_msgs::Float64 msg;
-            msg.data = std::stod(str.substr(4, str.size()));
+            segway_rmp::AccelCmd msg;
+            str = str.substr(4, str.size());
+            int i = str.find('+');
+            msg.accel = std::stod(str.substr(0, i));
+            msg.max_vel = std::stod(str.substr(i, str.size()));
             this->accel_pub.publish(msg);
         }
         // close(fd_read);

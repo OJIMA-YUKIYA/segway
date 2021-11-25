@@ -1,5 +1,6 @@
 const remoteVideo = document.getElementById('remote_video');
-const dataTextInput = document.getElementById('data_text');
+const accel_Input = document.getElementById('accel_text');
+const max_velocity_Input = document.getElementById('max_velocity_text');
 remoteVideo.controls = true;
 let peerConnection = null;
 let dataChannel = null;
@@ -187,12 +188,12 @@ function prepareNewConnection() {
 
     if (msg.substr(0, 4) == 'sgvs') {
         console.log('sgvs');
-        var target = document.getElementById("sgvs");
+        let target = document.getElementById("sgvs");
         target.innerHTML = show;
     }
     else if (msg.substr(0, 4) == 'sgss') {
         console.log('sgss');
-        var target = document.getElementById("sgss");
+        let target = document.getElementById("sgss");
         target.innerHTML = show;
     }
     console.log(show);
@@ -403,16 +404,25 @@ function play() {
 }
 
 function sendDataChannel() {
-  let textData = "acce";
-  textData = textData + dataTextInput.value;
-  if (textData.length == 0) {
+    // if (accel_Input.value ==  || max_velocity_Input.value == NULL) {
+    //     let target = document.getElementById("warning");
+    //     target.innerHTML = "両方入力してください。";
+    //     accel_Input.value = "";
+    //     max_velocity_Input.value = "";
+    //     return;
+    // }
+    // let target = document.getElementById("warning");
+    // target.innerHTML = "";
+    let textData = "acce" + accel_Input.value + "+" + max_velocity_Input.value;
+    if (textData.length == 0) {
     return;
-  }
-  if (dataChannel == null || dataChannel.readyState != "open") {
+    }
+    if (dataChannel == null || dataChannel.readyState != "open") {
     return;
-  }
-  dataChannel.send(new TextEncoder().encode(textData));
-  dataTextInput.value = "";
+    }
+    dataChannel.send(new TextEncoder().encode(textData));
+    // accel_Input.value = "";
+    // max_velocity_Input.value = "";
 }
 
 function quit_accel_cmd() {

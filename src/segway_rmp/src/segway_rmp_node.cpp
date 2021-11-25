@@ -40,6 +40,7 @@
 #include <std_msgs/Float64.h>
 
 #include "segway_rmp/VelocityStatus.h"
+#include "segway_rmp/AccelCmd.h"
 
 class SegwayRMPNode;
 
@@ -404,7 +405,7 @@ public:
         return;
     }
     void section_2() {
-        if (this->t < 3) {
+        if (this->t < 0) {
             this->vel = this->vel_limit;
             this->t += dt;
             this->ct += dt;
@@ -792,14 +793,14 @@ public:
                 true);
     }
 
-    void cmd_accelCallback(const std_msgs::Float64 msg) {
+    void cmd_accelCallback(const segway_rmp::AccelCmd& msg) {
         if (!this->connected)
             return;
         boost::mutex::scoped_lock lock(m_mutex);
         if (this->latch) {
             return;
         }
-        ba->setup(0.5, msg.data);
+        ba->setup(msg.max_vel, msg.accel);
         this->latch = 2;
         std::cout << "移動中・・・\n";
         return;
