@@ -64,9 +64,11 @@ public:
         ss << "sgvs";
         // ss << "section: " << vs.section << '?';
         // ss << "x: " << vs.x << '?';
-        ss << "経過時間: " << vs.t << " 秒?";
+        ss << "移動距離: " << vs.x << "(m)?";
+        ss << "経過時間: " << vs.t << " (秒)?";
+        ss << "所要時間: " << vs.total_time << " (秒)?";
         // ss << "total_time: " << vs.total_time << '?';
-        ss << "送った速度: " << vs.velocity << " (m/s)?";
+        ss << "速度: " << vs.velocity << " (m/s)?";
         ss << "最大速度: " << vs.vm << " (m/s)?";
         ss << "理想加速度: " << vs.am << " (m/s^2)\n";
         // ss << "T1: " << vs.T1 << '?';

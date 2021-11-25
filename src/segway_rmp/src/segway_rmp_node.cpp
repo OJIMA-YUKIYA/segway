@@ -349,14 +349,17 @@ public:
 class BanAccel {
     int* latch;
     int section;
-    double t, ct;
+    double t, ct, total_time;
     double vel, a;
     double vel_limit;
+    double x;
     ros::Publisher vel_pub;
 public:
     BanAccel(ros::Publisher& vel_pub, int* latch): vel_pub(vel_pub), latch(latch) {}
-    void setup(double vel_limit, double a) {
-        this->vel_limit = vel_limit;
+    void setup(double x, double a) {
+        this->x = x;
+        this->total_time = 2.0*std::sqrt(x/a);
+        this->vel_limit = std::sqrt(x*a);
         this->vel = 0;
         this->a = a;
         this->t = 0;
@@ -378,10 +381,11 @@ public:
         segway_rmp::VelocityStatus vs;
         vs.section = this->section;
         vs.t = this->ct;
+        vs.total_time = this->total_time;
         vs.velocity = this->vel;
         vs.vm = this->vel_limit;
         vs.am = this->a;
-        vs.x = 0;
+        vs.x = this->x;
         vs.T1 = 0;
         vs.T2 = 0;
         vs.T3 = 0;
