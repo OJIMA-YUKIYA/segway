@@ -59,7 +59,7 @@ public:
     void velocity_status_callback(const segway_rmp::VelocityStatus& vs) {
         // int fd_write = open("/home/ojima/segway/serial_out", O_WRONLY);
         // this->fd_write = open("/home/ojima/segway/serial_out", O_WRONLY);
-        ROS_INFO("write");
+        // ROS_INFO("write");
         std::stringstream ss;
         ss << "sgvs";
         // ss << "section: " << vs.section << '?';

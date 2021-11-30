@@ -1,6 +1,7 @@
 const remoteVideo = document.getElementById('remote_video');
 const accel_Input = document.getElementById('accel_text');
 const max_velocity_Input = document.getElementById('max_velocity_text');
+var logData = '';
 remoteVideo.controls = true;
 let peerConnection = null;
 let dataChannel = null;
@@ -190,6 +191,7 @@ function prepareNewConnection() {
         console.log('sgvs');
         let target = document.getElementById("sgvs");
         target.innerHTML = show;
+        logData = logData + show;
     }
     else if (msg.substr(0, 4) == 'sgss') {
         console.log('sgss');
@@ -427,4 +429,15 @@ function sendDataChannel() {
 
 function quit_accel_cmd() {
     dataChannel.send(new TextEncoder().encode("quit"));
+}
+
+function handleDownload() {
+    let blob = new Blob([logData], {"type": "text/plain"});
+
+    if (window.navigator.msSaveBlob) {
+        window.navigator.msSaveBlob(blob, "log.csv");
+        window.navigator.msSaveOrOpenBlob(blob, "log.txt");
+    } else {
+        document.getElementById("download").href = window.URL.createObjectURL(blob);
+    }
 }
