@@ -520,47 +520,48 @@ public:
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
-                while (ros::ok()) {
-                    if (this->latch) {
-                        ros::Duration(1).sleep();
-                    }
-                    else {
-                        break;
-                    }
-                }
-                std::cout << "前後に動かす場合は 1 を入力。曲がる場合は 2 を入力。バン加速は 3 を入力。シャットダウンは 4 >> ";
-                int num;
-                std::cin >> num;
-                double x, theta, r, a, max_vel;
-                switch (num) {
-                    case 1:
-                        std::cout << "変位 x (m) を入力 >> ";
-                        std::cin >> x;
-                        cv->setup(x);
-                        this->latch = 1;
-                        break;
-                    case 2:
-                        std::cout << "回転角度 theta (deg) と 回転半径 r (m) を入力\n回転角度 theta (deg) = ";
-                        std::cin >> theta;
-                        std::cout << "回転半径 r (m) = ";
-                        std::cin >> r;
-                        cv->setup(r, theta);
-                        this->latch = 1;
-                        break;
-                    case 3:
-                        std::cout << "最高速度 max_vel (m/s) と 加速度 a (m/s/s) と を入力\n";
-                        std::cout << "max_vel = ";
-                        std::cin >> max_vel;
-                        std::cout << "a = ";
-                        std::cin >> a;
-                        ba->setup(max_vel, a);
-                        this->latch = 2;
-                        break;
-                    case 4:
-                        std::exit(1);
-                        return false;
-                }
-                std::cout << "移動中・・・\n";
+                // while (ros::ok()) {
+                //     if (this->latch) {
+                //         ros::Duration(1).sleep();
+                //     }
+                //     else {
+                //         break;
+                //     }
+                // }
+                // std::cout << "前後に動かす場合は 1 を入力。曲がる場合は 2 を入力。バン加速は 3 を入力。シャットダウンは 4 >> ";
+                // int num;
+                // std::cin >> num;
+                // double x, theta, r, a, max_vel;
+                // switch (num) {
+                //     case 1:
+                //         std::cout << "変位 x (m) を入力 >> ";
+                //         std::cin >> x;
+                //         cv->setup(x);
+                //         this->latch = 1;
+                //         break;
+                //     case 2:
+                //         std::cout << "回転角度 theta (deg) と 回転半径 r (m) を入力\n回転角度 theta (deg) = ";
+                //         std::cin >> theta;
+                //         std::cout << "回転半径 r (m) = ";
+                //         std::cin >> r;
+                //         cv->setup(r, theta);
+                //         this->latch = 1;
+                //         break;
+                //     case 3:
+                //         std::cout << "最高速度 max_vel (m/s) と 加速度 a (m/s/s) と を入力\n";
+                //         std::cout << "max_vel = ";
+                //         std::cin >> max_vel;
+                //         std::cout << "a = ";
+                //         std::cin >> a;
+                //         ba->setup(max_vel, a);
+                //         this->latch = 2;
+                //         break;
+                //     case 4:
+                //         std::exit(1);
+                //         return false;
+                // }
+                // std::cout << "移動中・・・\n";
+                ros::Duration(100).sleep();
             }
             ros::Duration(100).sleep();
         }
@@ -815,7 +816,7 @@ private:
     void setupROSComms() {
         // Subscribe to command velocities
         this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
-        this->cmd_accelSubscriber = n->subscribe("accel_cmd", 1000, &SegwayRMPNode::cmd_accelCallback, this);
+        this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
 
         // Advertise the SegwayStatusStamped
         this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);

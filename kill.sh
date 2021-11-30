@@ -27,3 +27,7 @@ fi
 if [[ $(ps | grep rostopic) ]]; then
     killall rostopic
 fi
+
+if [[ $(ps | grep segway_rmp_node) ]]; then
+    killall segway_rmp_node
+fi

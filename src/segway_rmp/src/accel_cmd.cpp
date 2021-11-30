@@ -20,8 +20,8 @@ public:
     A() {
         n = new ros::NodeHandle("~");
         this->accel_pub = this->n->advertise<segway_rmp::AccelCmd>("accel", 100);
-        this->VelocityStatus_sub = this->n->subscribe("velocity_status", 100, &A::velocity_status_callback, this);
-        this->SegwayStatus_sub = this->n->subscribe("segway_status", 500, &A::segway_status_callback, this);
+        this->VelocityStatus_sub = this->n->subscribe("/segway_rmp_node/vel", 100, &A::velocity_status_callback, this);
+        this->SegwayStatus_sub = this->n->subscribe("/segway_rmp_node/segway_status", 1000, &A::segway_status_callback, this);
     }
     void segway_status_callback(const segway_rmp::SegwayStatusStamped &sss_msg) {
         std::stringstream ss;
