@@ -460,7 +460,7 @@ function handleIdealVelDownload() {
 }
 
 function handleRealVelDownload() {
-    real_velocity_logData = '#計測した速度の記録\n#時刻(s),左車輪(m/s),右車輪(m/s),左右平均(m/s)\n' + real_velocity_logData;
+    real_velocity_logData = '#計測した速度の記録\n#時刻(s),左右平均(m/s),左車輪(m/s),右車輪(m/s)\n' + real_velocity_logData;
     let blob = new Blob([real_velocity_logData], {"type": "text/plain"});
 
     if (window.navigator.msSaveBlob) {
