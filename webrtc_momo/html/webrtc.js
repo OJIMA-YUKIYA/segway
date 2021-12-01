@@ -1,7 +1,11 @@
 const remoteVideo = document.getElementById('remote_video');
 const accel_Input = document.getElementById('accel_text');
 const max_velocity_Input = document.getElementById('max_velocity_text');
-var logData = '';
+
+var ideal_velocity_logData = '';
+var real_velocity_logData = '';
+var log_latch = false;
+
 remoteVideo.controls = true;
 let peerConnection = null;
 let dataChannel = null;
@@ -191,12 +195,23 @@ function prepareNewConnection() {
         console.log('sgvs');
         let target = document.getElementById("sgvs");
         target.innerHTML = show;
-        logData = logData + show;
     }
     else if (msg.substr(0, 4) == 'sgss') {
         console.log('sgss');
         let target = document.getElementById("sgss");
         target.innerHTML = show;
+    }
+    else if (msg.substr(0, 4) == 'seve') {
+        console.log('seve');
+        if (log_latch) {
+            ideal_velocity_logData = ideal_velocity_logData + show + '\n';
+        }
+    }
+    else if (msg.substr(0, 4) == 'geve') {
+        console.log('geve');
+        if (log_latch) {
+            real_velocity_logData = real_velocity_logData + show + '\n';
+        }
     }
     console.log(show);
   };
@@ -431,13 +446,49 @@ function quit_accel_cmd() {
     dataChannel.send(new TextEncoder().encode("quit"));
 }
 
-function handleDownload() {
-    let blob = new Blob([logData], {"type": "text/plain"});
+function handleIdealVelDownload() {
+    ideal_velocity_logData = '#理想の速度の記録\n#時刻(s),両輪(m/s)\n' + ideal_velocity_logData;
+    let blob = new Blob([ideal_velocity_logData], {"type": "text/plain"});
 
     if (window.navigator.msSaveBlob) {
-        window.navigator.msSaveBlob(blob, "log.csv");
-        window.navigator.msSaveOrOpenBlob(blob, "log.txt");
+        window.navigator.msSaveBlob(blob, "IDealVelocityLog.csv");
+        window.navigator.msSaveOrOpenBlob(blob, "IDealVelocityLog.csv");
     } else {
-        document.getElementById("download").href = window.URL.createObjectURL(blob);
+        document.getElementById("download1").href = window.URL.createObjectURL(blob);
     }
+    ideal_velocity_logData = '';
+}
+
+function handleRealVelDownload() {
+    real_velocity_logData = '#計測した速度の記録\n#時刻(s),左車輪(m/s),右車輪(m/s),左右平均(m/s)\n' + real_velocity_logData;
+    let blob = new Blob([real_velocity_logData], {"type": "text/plain"});
+
+    if (window.navigator.msSaveBlob) {
+        window.navigator.msSaveBlob(blob, "RealVelocityLog.csv");
+        window.navigator.msSaveOrOpenBlob(blob, "RealVelocityLog.csv");
+    } else {
+        document.getElementById("download2").href = window.URL.createObjectURL(blob);
+    }
+    real_velocity_logData = '';
+}
+
+function startLog() {
+    ideal_velocity_logData = '';
+    real_velocity_logData = '';
+    let target1 = document.getElementById('logstartbutton');
+    if (target1.value == '記録中') {
+        return;
+    }
+    target1.value = '記録中';
+    let target2 = document.getElementById('logendbutton');
+    target2.value = '記録終了';
+    log_latch = true;
+}
+
+function endLog() {
+    log_latch = false;
+    let target1 = document.getElementById('logstartbutton');
+    target1.value = '記録開始';
+    let target2 = document.getElementById('logendbutton');
+    target2.value = '記録完了';
 }

@@ -1,6 +1,7 @@
 #include <sys/fcntl.h>
 // #include <unistd.h>
 #include <string>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
@@ -54,6 +55,16 @@ public:
         }
         buf_ptr[str.length()] = '\0';
         write(this->fd_write, buf_ptr, str.length());
+        std::stringstream ss2;
+        ss2 << "geve";
+        ss2 << std::fixed << std::setprecision(10) << sss_msg.segway.ros_time << ',' << sss_msg.segway.left_wheel_velocity << ',' << sss_msg.segway.right_wheel_velocity << ',' << (sss_msg.segway.left_wheel_velocity + sss_msg.segway.right_wheel_velocity) / 2.0 << '\n';
+        std::string str2 = ss2.str();
+        char buf_ptr2[100];
+        for (int i = 0; i < str2.length(); i++) {
+            buf_ptr2[i] = str2.at(i);
+        }
+        buf_ptr2[str2.length()] = '\0';
+        write(this->fd_write, buf_ptr2, str2.length());
     }
 
     void velocity_status_callback(const segway_rmp::VelocityStatus& vs) {
@@ -82,6 +93,17 @@ public:
         }
         buf_ptr[str.length()] = '\0';
         write(this->fd_write, buf_ptr, str.length());
+
+        std::stringstream ss2;
+        ss2 << "seve";
+        ss2 << std::fixed << std::setprecision(10) << ros::Time::now() << ',' << vs.velocity << '\n';
+        std::string str2 = ss2.str();
+        char buf_ptr2[50];
+        for (int i = 0; i < str2.length(); i++) {
+            buf_ptr2[i] = str2.at(i);
+        }
+        buf_ptr2[str2.length()] = '\0';
+        write(this->fd_write, buf_ptr2, str2.length());
         // close(fd_write);
     }
 

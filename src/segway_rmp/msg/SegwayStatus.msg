@@ -31,3 +31,5 @@ float32 ui_battery                  # Volts
 float32 powerbase_battery           # Volts
 
 bool    motors_enabled              # Enabled (true) or E-Stopped (false)
+
+float64 ros_time
