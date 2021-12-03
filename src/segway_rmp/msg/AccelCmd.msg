@@ -1,2 +1,3 @@
-float64 x
-float64 accel
+float64 total_time
+float64 a
+float64 vel_limit

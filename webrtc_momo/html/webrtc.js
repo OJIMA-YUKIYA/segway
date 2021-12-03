@@ -1,4 +1,5 @@
 const remoteVideo = document.getElementById('remote_video');
+const total_time_Input = document.getElementById('total_time_text');
 const accel_Input = document.getElementById('accel_text');
 const max_velocity_Input = document.getElementById('max_velocity_text');
 
@@ -430,12 +431,12 @@ function sendDataChannel() {
     // }
     // let target = document.getElementById("warning");
     // target.innerHTML = "";
-    let textData = "acce" + accel_Input.value + "+" + max_velocity_Input.value;
+    let textData = "acce" + total_time_Input.value + "," + accel_Input.value + "," + max_velocity_Input.value;
     if (textData.length == 0) {
-    return;
+        return;
     }
     if (dataChannel == null || dataChannel.readyState != "open") {
-    return;
+        return;
     }
     dataChannel.send(new TextEncoder().encode(textData));
     // accel_Input.value = "";
@@ -446,30 +447,28 @@ function quit_accel_cmd() {
     dataChannel.send(new TextEncoder().encode("quit"));
 }
 
-function handleIdealVelDownload() {
+function handleTargetVelDownload() {
     ideal_velocity_logData = '#理想の速度の記録\n#時刻(s),両輪(m/s)\n' + ideal_velocity_logData;
     let blob = new Blob([ideal_velocity_logData], {"type": "text/plain"});
 
     if (window.navigator.msSaveBlob) {
-        window.navigator.msSaveBlob(blob, "IDealVelocityLog.csv");
-        window.navigator.msSaveOrOpenBlob(blob, "IDealVelocityLog.csv");
+        window.navigator.msSaveBlob(blob, "target_velocity.log");
+        window.navigator.msSaveOrOpenBlob(blob, "target_velocity.log");
     } else {
         document.getElementById("download1").href = window.URL.createObjectURL(blob);
     }
-    ideal_velocity_logData = '';
 }
 
-function handleRealVelDownload() {
+function handleActualVelDownload() {
     real_velocity_logData = '#計測した速度の記録\n#時刻(s),左右平均(m/s),左車輪(m/s),右車輪(m/s)\n' + real_velocity_logData;
     let blob = new Blob([real_velocity_logData], {"type": "text/plain"});
 
     if (window.navigator.msSaveBlob) {
-        window.navigator.msSaveBlob(blob, "RealVelocityLog.csv");
-        window.navigator.msSaveOrOpenBlob(blob, "RealVelocityLog.csv");
+        window.navigator.msSaveBlob(blob, "actual_velocity.log");
+        window.navigator.msSaveOrOpenBlob(blob, "actual_velocity.log");
     } else {
         document.getElementById("download2").href = window.URL.createObjectURL(blob);
     }
-    real_velocity_logData = '';
 }
 
 function startLog() {

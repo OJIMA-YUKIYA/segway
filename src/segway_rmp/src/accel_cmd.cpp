@@ -133,9 +133,12 @@ public:
         if (read_size > 4 && str.substr(0, 4) == "acce") {
             segway_rmp::AccelCmd msg;
             str = str.substr(4, str.size());
-            int i = str.find('+');
-            msg.accel = std::stod(str.substr(0, i));
-            msg.x = std::stod(str.substr(i, str.size()));
+            int i = str.find(',');
+            msg.total_time = std::stod(str.substr(0, i));
+            str = str.substr(i, str.size());
+            i = str.find(',');
+            msg.a = std::stod(str.substr(0, i));
+            msg.vel_limit =  std::stod(str.substr(i, str.size()));
             this->accel_pub.publish(msg);
         }
         // close(fd_read);

@@ -349,22 +349,36 @@ public:
 class BanAccel {
     int* latch;
     int section;
-    double t, ct, total_time;
+    double t, ct, total_time, T1, T2, T3;
     double vel, a;
     double vel_limit;
     double x;
     ros::Publisher vel_pub;
 public:
     BanAccel(ros::Publisher& vel_pub, int* latch): vel_pub(vel_pub), latch(latch) {}
-    void setup(double x, double a) {
-        this->x = x;
-        this->total_time = 2.0*std::sqrt(x/a);
-        this->vel_limit = std::sqrt(x*a);
+    void setup(double total_time, double a, double vel_limit) {
+        // this->x = x;
+        // this->total_time = 2.0*std::sqrt(x/a);
+        // this->vel_limit = std::sqrt(x*a);
+        // this->vel = 0;
+        // this->a = a;
+        // this->t = 0;
+        // this->ct = 0;
+        // this->section = 1;
+        this->total_time = total_time;
+        this->vel_limit = vel_limit;
         this->vel = 0;
         this->a = a;
         this->t = 0;
         this->ct = 0;
         this->section = 1;
+        this->T1 = vel_limit / a;
+        this->T3 = vel_limit / a;
+        this->T2 = total_time - this->T1 - this->T3;
+        if (this->T2 < 0) {
+            this->T2 = 0;
+        }
+        this->x =  (this->T2 + (this->T1 + this->T2 + this->T3)) * vel_limit / 2;
     }
     Lavel controller() {
         switch (this->section) {
@@ -387,9 +401,9 @@ public:
         vs.vm = this->vel_limit;
         vs.am = this->a;
         vs.x = this->x;
-        vs.T1 = 0;
-        vs.T2 = 0;
-        vs.T3 = 0;
+        vs.T1 = this->T1;
+        vs.T2 = this->T2;
+        vs.T3 = this->T3;
         vel_pub.publish(vs);
         Lavel la;
         la.linear_vel = this->vel;
@@ -397,7 +411,7 @@ public:
         return la;
     }
     void section_1() {
-        if (abs(this->vel) < abs(this->vel_limit)) {
+        if (this->t < this->T1) {
             this->vel = this->a * this->t;
             this->t += dt;
             this->ct += dt;
@@ -410,7 +424,7 @@ public:
         return;
     }
     void section_2() {
-        if (this->t < 0) {
+        if (this->t < this->T2) {
             this->vel = this->vel_limit;
             this->t += dt;
             this->ct += dt;
@@ -422,7 +436,7 @@ public:
         }
     }
     void section_3() {
-        if (abs(this->vel) > 0.005) {
+        if (this->t < this->T3) {
             this->vel = this->vel_limit - this->a * this->t;
             this->t += dt;
             this->ct += dt;
@@ -807,7 +821,7 @@ public:
         if (this->latch) {
             return;
         }
-        ba->setup(msg.x, msg.accel);
+        ba->setup(msg.total_time, msg.a, msg.vel_limit);
         this->latch = 2;
         std::cout << "移動中・・・\n";
         return;
