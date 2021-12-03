@@ -42,13 +42,15 @@
     <!-- <img src="./img.png"><br> -->
     合計時間　&nbsp <input type="range" id="total_time_text" min="0.5" max="10" step="0.5" value="0.5" oninput="this.nextElementSibling.value = this.value"><output>0.5</output> (s) <br>
     加速度 (> 0) <input type="range" id="accel_text" min="0.05" max="0.5" step="0.05" value="0.05" oninput="this.nextElementSibling.value = this.value"><output>0.05</output> (m/s^2) <br>
-    最高速度　 &nbsp<input type="range" id="max_velocity_text" min="0.05" max="5.0" step="0.05" value="0.05" oninput="this.nextElementSibling.value = this.value"><output>0.05</output> (m/s) <br>
+    最高速度　 &nbsp<input type="range" id="max_velocity_text" min="0.05" max="1.0" step="0.05" value="0.05" oninput="this.nextElementSibling.value = this.value"><output>0.05</output> (m/s) <br>
+    <input type="button" onclick="cal_velocity_plan()" value="走行計画を計算"> <br>
+    <pre><div id="result_velocity_plan"></div></pre>
     <input type="button" onclick="sendDataChannel();" value="送信">　　<input type="button" onclick="quit_accel_cmd();" value="accel_cmd を終了"><br><br>
     <input id="logstartbutton" type="button" onclick="startLog();" value="記録開始">　<input id="logendbutton" type="button" onclick="endLog();" value="記録終了">
     <main>
         <div class="VelocityStatus">
             セグウェイに送信した情報<br>
-            <a id="download1" href="#" download="traget_velocity.log" onclick="handleIdealVelDownload()">ダウンロード</a>
+            <a id="download1" href="#" download="traget_velocity.log" onclick="handleTargetVelDownload()">ダウンロード</a>
             <font size="4">
                 <pre><div id="sgvs"></div></pre>
             </font>
@@ -56,7 +58,7 @@
         </div>
         <div class="SegwayStatusStamped">
             セグウェイから受信した情報 <br>
-            <a id="download2" href="#" download="actual_velocity.log" onclick="handleRealVelDownload()">ダウンロード</a>
+            <a id="download2" href="#" download="actual_velocity.log" onclick="handleActualVelDownload()">ダウンロード</a>
             <font size="4">
                 <pre><div id="sgss"></div></pre>
             </font>
