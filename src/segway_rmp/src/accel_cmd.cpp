@@ -135,10 +135,10 @@ public:
             str = str.substr(4, str.size());
             int i = str.find(',');
             msg.total_time = std::stod(str.substr(0, i));
-            str = str.substr(i, str.size());
+            str = str.substr(i + 1, str.size());
             i = str.find(',');
             msg.a = std::stod(str.substr(0, i));
-            msg.vel_limit =  std::stod(str.substr(i, str.size()));
+            msg.vel_limit =  std::stod(str.substr(i + 1, str.size()));
             this->accel_pub.publish(msg);
         }
         // close(fd_read);

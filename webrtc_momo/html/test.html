@@ -40,7 +40,7 @@
     </div>
     <div id="warning"></div>
     <!-- <img src="./img.png"><br> -->
-    合計時間　&nbsp <input type="range" id="total_time_text" min="0.5" max="10" step="0.5" value="0.05" oninput="this.nextElementSibling.value = this.value"><output>0.05</output> (s) <br>
+    合計時間　&nbsp <input type="range" id="total_time_text" min="0.5" max="10" step="0.5" value="0.5" oninput="this.nextElementSibling.value = this.value"><output>0.5</output> (s) <br>
     加速度 (> 0) <input type="range" id="accel_text" min="0.05" max="0.5" step="0.05" value="0.05" oninput="this.nextElementSibling.value = this.value"><output>0.05</output> (m/s^2) <br>
     最高速度　 &nbsp<input type="range" id="max_velocity_text" min="0.05" max="5.0" step="0.05" value="0.05" oninput="this.nextElementSibling.value = this.value"><output>0.05</output> (m/s) <br>
     <input type="button" onclick="sendDataChannel();" value="送信">　　<input type="button" onclick="quit_accel_cmd();" value="accel_cmd を終了"><br><br>
