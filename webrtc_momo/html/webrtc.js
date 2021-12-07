@@ -470,7 +470,7 @@ function quit_accel_cmd() {
 }
 
 function handleTargetVelDownload() {
-    ideal_velocity_logData = '#理想の速度の記録\n#時刻(s),両輪(m/s)\n' + ideal_velocity_logData;
+    ideal_velocity_logData = '#理想の速度の記録\n#時刻(s),両輪(m/s) [加速度: ' + accel_Input.value + ', 最高速度: ' + max_velocity_Input.value + ', T2: ' + T2_Input.value + ']\n' + ideal_velocity_logData;
     let blob = new Blob([ideal_velocity_logData], {"type": "text/plain"});
 
     if (window.navigator.msSaveBlob) {
