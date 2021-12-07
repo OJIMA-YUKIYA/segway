@@ -348,7 +348,7 @@ public:
 
 class BanAccel {
     int* latch;
-    int section;
+    int section, reverse;
     double t, ct, total_time, T1, T2, T3;
     double vel, a;
     double vel_limit;
@@ -356,7 +356,7 @@ class BanAccel {
     ros::Publisher vel_pub;
 public:
     BanAccel(ros::Publisher& vel_pub, int* latch): vel_pub(vel_pub), latch(latch) {}
-    void setup(double total_time, double a, double vel_limit) {
+    void setup(double T2, double a, double vel_limit, int reverse) {
         // this->x = x;
         // this->total_time = 2.0*std::sqrt(x/a);
         // this->vel_limit = std::sqrt(x*a);
@@ -365,20 +365,18 @@ public:
         // this->t = 0;
         // this->ct = 0;
         // this->section = 1;
-        this->total_time = total_time;
+        this->reverse = reverse;
         this->vel_limit = vel_limit;
-        this->vel = 0;
         this->a = a;
+        this->T1 = vel_limit / a;
+        this->T3 = vel_limit / a;
+        this->T2 = T2;
+        this->total_time = this->T1 + this->T2 + this->T3;
+        this->x =  (this->T2 + (this->T1 + this->T2 + this->T3)) * vel_limit / 2;
+        this->vel = 0;
         this->t = 0;
         this->ct = 0;
         this->section = 1;
-        this->T1 = vel_limit / a;
-        this->T3 = vel_limit / a;
-        this->T2 = total_time - this->T1 - this->T3;
-        if (this->T2 < 0) {
-            this->T2 = 0;
-        }
-        this->x =  (this->T2 + (this->T1 + this->T2 + this->T3)) * vel_limit / 2;
     }
     Lavel controller() {
         switch (this->section) {
@@ -408,6 +406,9 @@ public:
         Lavel la;
         la.linear_vel = this->vel;
         la.angular_vel = 0;
+        if (reverse) {
+            la.linear_vel = -la.linear_vel;
+        }
         return la;
     }
     void section_1() {
@@ -821,10 +822,15 @@ public:
         if (this->latch) {
             return;
         }
-        ba->setup(msg.total_time, msg.a, msg.vel_limit);
+        ba->setup(msg.T2, msg.a, msg.vel_limit, msg.reverse);
         this->latch = 2;
         std::cout << "移動中・・・\n";
         return;
+    }
+
+    void halt_callback(const std_msgs::String& msg) {
+        this->segway_rmp->shutdown();
+        exit(0);
     }
 
 private:
@@ -833,6 +839,7 @@ private:
         // Subscribe to command velocities
         this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
         this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
+        this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
 
         // Advertise the SegwayStatusStamped
         this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
@@ -1018,7 +1025,7 @@ private:
 
     ros::Timer keep_alive_timer;
 
-    ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber;
+    ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber, halt_sub;
     ros::Publisher segway_status_pub;
     ros::Publisher odom_pub;
     ros::Publisher vel_pub;

@@ -8,6 +8,7 @@
 
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/String.h>
 
 #include "segway_rmp/VelocityStatus.h"
 #include "segway_rmp/SegwayStatusStamped.h"
@@ -20,6 +21,7 @@ class A {
 public:
     A() {
         n = new ros::NodeHandle("~");
+        this->halt_pub = this->n->advertise<std_msgs::String>("halt", 10);
         this->accel_pub = this->n->advertise<segway_rmp::AccelCmd>("accel", 100);
         this->VelocityStatus_sub = this->n->subscribe("/segway_rmp_node/vel", 100, &A::velocity_status_callback, this);
         this->SegwayStatus_sub = this->n->subscribe("/segway_rmp_node/segway_status", 1000, &A::segway_status_callback, this);
@@ -126,6 +128,9 @@ public:
         std::cout << "\nread_size: " << read_size << " message: " << str << '\n';
         if (read_size == 4 && str == "quit") {
             std::cout << "accel_cmd を終了\n";
+            std_msgs::String msg;
+            msg.data = "quit";
+            this->halt_pub.publish(msg);
             close(this->fd_write);
             close(this->fd_read);
             exit(0);
@@ -134,11 +139,14 @@ public:
             segway_rmp::AccelCmd msg;
             str = str.substr(4, str.size());
             int i = str.find(',');
-            msg.total_time = std::stod(str.substr(0, i));
+            msg.T2 = std::stod(str.substr(0, i));
             str = str.substr(i + 1, str.size());
             i = str.find(',');
             msg.a = std::stod(str.substr(0, i));
-            msg.vel_limit =  std::stod(str.substr(i + 1, str.size()));
+            str = str.substr(i + 1, str.size());
+            i = str.find(',');
+            msg.vel_limit =  std::stod(str.substr(0, i));
+            msg.reverse = std::stoi(str.substr(i + 1, str.size()));
             this->accel_pub.publish(msg);
         }
         // close(fd_read);
@@ -172,7 +180,7 @@ public:
     }
 private:
     ros::NodeHandle* n;
-    ros::Publisher accel_pub;
+    ros::Publisher halt_pub, accel_pub;
     ros::Subscriber VelocityStatus_sub, SegwayStatus_sub;
     ros::Timer keep_alive_timer;
 

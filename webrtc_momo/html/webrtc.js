@@ -1,7 +1,8 @@
 const remoteVideo = document.getElementById('remote_video');
-const total_time_Input = document.getElementById('total_time_text');
+const T2_Input = document.getElementById('T2_text');
 const accel_Input = document.getElementById('accel_text');
 const max_velocity_Input = document.getElementById('max_velocity_text');
+const reverse_Input = document.getElementsByName('q1');
 
 var ideal_velocity_logData = '';
 var real_velocity_logData = '';
@@ -422,26 +423,18 @@ function play() {
 }
 
 function cal_velocity_plan() {
-    let total_time = parseFloat(total_time_Input.value);
-    let vel_limit = parseFloat(max_velocity_Input.value);
     let a = parseFloat(accel_Input.value);
+    let vel_limit = parseFloat(max_velocity_Input.value);
+    let T2 = parseFloat(T2_Input.value);
     let T1 = vel_limit / a;
-    console.log("T1: " + T1);
     let T3 = vel_limit / a;
-    console.log("T3: " + T3);
-    let T2 = total_time - T1 - T3;
-    console.log("T2: " + T2);
-    if (T2 < 0) {
-        T2 = 0;
-    }
     let x =  (T2 + (T1 + T2 + T3)) * vel_limit / 2.0;
-    console.log("x: " + x);
-    target = document.getElementById("result_velocity_plan");
-    target.innerHTML = "";
-    target.innerHTML = " x: " + x.toFixed(6) + " (m)\n"
-    + "T1: " + T1.toFixed(6) + " (s)\n"
-    + "T2: " + T2.toFixed(6) + " (s)\n"
-    + "T3: " + T3.toFixed(6) + " (s)";
+    document.getElementById("result_velocity_plan").innerHTML =
+      "total_time: " + (T1 + T2 + T3).toFixed(6) + " (s)\n"
+    + "         x: " + x.toFixed(6) + " (m)\n"
+    + "        T1: " + T1.toFixed(6) + " (s)\n"
+    + "        T2: " + T2.toFixed(6) + " (s)\n"
+    + "        T3: " + T3.toFixed(6) + " (s)";
 }
 
 function sendDataChannel() {
@@ -454,7 +447,13 @@ function sendDataChannel() {
     // }
     // let target = document.getElementById("warning");
     // target.innerHTML = "";
-    let textData = "acce" + total_time_Input.value + "," + accel_Input.value + "," + max_velocity_Input.value;
+    let textData = "acce" + T2_Input.value + "," + accel_Input.value + "," + max_velocity_Input.value + ",";
+    if (reverse_Input[0].checked) {
+        textData = textData + 0;
+    }
+    else {
+        textData = textData + 1;
+    }
     if (textData.length == 0) {
         return;
     }

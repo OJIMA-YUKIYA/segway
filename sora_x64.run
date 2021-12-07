@@ -1,0 +1,11 @@
+#!/bin/bash
+
+socat pty,echo=0,raw,link=./serial_out  pty,raw,echo=0,link=./webrtc_momo/serial_in &
+
+cd webrtc_momo
+
+./momo_x64 --no-audio-device $* --serial ./serial_in,9600 sora --auto wss://node-01.sora-labo.shiguredo.jp/signaling OJIMA-YUKIYA@sora-devtools --role sendonly --multistream true --video-codec-type H264 --video-bit-rate 5000 --metadata '{"signaling_key": "wH_hp6DYomonzVH1eu8mDUN0fgEzmynp6HyXx2HrqUB1v4ds"}' &
+
+cd ..
+
+echo "start sora"

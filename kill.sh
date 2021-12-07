@@ -31,3 +31,11 @@ fi
 if [[ $(ps | grep segway_rmp_node) ]]; then
     killall segway_rmp_node
 fi
+
+if [[ $(ps | grep sora_x64.run) ]]; then
+    killall sora_x64.run
+fi
+
+if [[ $(ps | grep sora_arm64.run) ]]; then
+    killall sora_arm64.run
+fi

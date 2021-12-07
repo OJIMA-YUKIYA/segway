@@ -13,14 +13,6 @@ if [[ $(ps | grep socat) ]]; then
     killall socat
 fi
 
-if [ -e ./momo_ser* ]; then
-    rm momo_ser*
-fi
-
-if [ -e ./webrtc_momo/momo_ser* ]; then
-    rm ./webrtc_momo/momo_ser*
-fi
-
 socat pty,echo=0,raw,link=./serial_out  pty,raw,echo=0,link=./webrtc_momo/serial_in &
 
 cd webrtc_momo
