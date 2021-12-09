@@ -473,6 +473,8 @@ public:
         this->initial_integrated_right_wheel_position = 0.0;
         this->initial_integrated_turn_position = 0.0;
         this->latch = 0;
+        this->lin = 0;
+        this->ang = 0;
     }
 
     ~SegwayRMPNode() {
@@ -498,10 +500,10 @@ public:
         this->ba = new BanAccel(this->vel_pub, &(this->latch));
 
         // Setup keep alive timer
-        // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
+        this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
 
-        // ros::AsyncSpinner spinner(2);
-        // spinner.start();
+        ros::AsyncSpinner spinner(2);
+        spinner.start();
 
 
         this->odometry_reset_start_time = ros::Time::now();
@@ -613,7 +615,7 @@ public:
             }
 
             try {
-                this->segway_rmp->move(la.linear_vel, la.angular_vel);
+                this->segway_rmp->move(this->lin, this->ang);
             } catch (std::exception& e) {
                 std::string e_msg(e.what());
                 ROS_ERROR("Error commanding Segway RMP: %s", e_msg.c_str());
@@ -837,8 +839,8 @@ public:
 
     void joy_callback(const sensor_msgs::Joy& msg) {
         if (this->connected) {
-            ROS_INFO("%lf, %lf", msg.axes[3] * 0.2, msg.axes[0] * 1.0);
-            this->segway_rmp->move(msg.axes[3] * 0.2, msg.axes[0] * 1.0);
+            this->lin = msg.axes[3] * 0.2;
+            this->ang = msg.axes[0] * 1.0;
             // ros::Duration(0.05).sleep();
         }
         return;
@@ -1107,6 +1109,8 @@ private:
 
     ChangeVelocity* cv;
     int latch;
+
+    double lin, ang;
 
     BanAccel* ba;
 
