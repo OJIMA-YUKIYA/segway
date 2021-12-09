@@ -498,9 +498,9 @@ public:
         this->ba = new BanAccel(this->vel_pub, &(this->latch));
 
         // Setup keep alive timer
-        this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
+        // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
 
-        ros::AsyncSpinner spinner(4);
+        ros::AsyncSpinner spinner(2);
         spinner.start();
 
 
@@ -839,7 +839,7 @@ public:
         if (this->connected) {
             ROS_INFO("%lf, %lf", msg.axes[3] * 0.2, msg.axes[0] * 1.0);
             this->segway_rmp->move(msg.axes[3] * 0.2, msg.axes[0] * 1.0);
-            ros::Duration(0.05).sleep();
+            // ros::Duration(0.05).sleep();
         }
         return;
     }
@@ -848,17 +848,17 @@ private:
     // Function
     void setupROSComms() {
         // Subscribe to command velocities
-        this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
-        this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
-        this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
+        // this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
+        // this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
+        // this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
         this->joy_sub = n->subscribe("/joy", 1000, &SegwayRMPNode::joy_callback, this);
 
         // Advertise the SegwayStatusStamped
-        this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
+        // this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
         // Advertise the Odometry Msg
-        this->odom_pub = n->advertise<nav_msgs::Odometry>("odom", 50);
+        // this->odom_pub = n->advertise<nav_msgs::Odometry>("odom", 50);
 
-        this->vel_pub = n->advertise<segway_rmp::VelocityStatus>("vel", 1000);
+        // this->vel_pub = n->advertise<segway_rmp::VelocityStatus>("vel", 1000);
     }
 
     void setupSegwayRMP() {
