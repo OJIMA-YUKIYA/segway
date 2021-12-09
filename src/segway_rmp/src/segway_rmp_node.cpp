@@ -535,7 +535,7 @@ public:
             this->segway_rmp->setMaxTurnScaleFactor(1.0);
             this->segway_rmp->setBalanceModeLocking(false);
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
-            // ros::spin();
+            ros::spin();
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
                 // while (ros::ok()) {
