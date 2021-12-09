@@ -38,6 +38,7 @@
 
 #include <std_msgs/String.h>
 #include <std_msgs/Float64.h>
+#include <sensor_msgs/Joy.h>
 
 #include "segway_rmp/VelocityStatus.h"
 #include "segway_rmp/AccelCmd.h"
@@ -833,6 +834,11 @@ public:
         exit(0);
     }
 
+    void joy_callback(const sensor_msgs::Joy& msg) {
+        this->segway_rmp->move(msg.axes[4] * 0.1, msg.axes[0] * 0.1);
+        return;
+    }
+
 private:
     // Function
     void setupROSComms() {
@@ -840,6 +846,7 @@ private:
         this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
         this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
         this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
+        this->joy_sub = n->subscribe("/joy", 1000, &SegwayRMPNode::joy_callback, this);
 
         // Advertise the SegwayStatusStamped
         this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
@@ -1025,7 +1032,7 @@ private:
 
     ros::Timer keep_alive_timer;
 
-    ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber, halt_sub;
+    ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber, halt_sub, joy_sub;
     ros::Publisher segway_status_pub;
     ros::Publisher odom_pub;
     ros::Publisher vel_pub;

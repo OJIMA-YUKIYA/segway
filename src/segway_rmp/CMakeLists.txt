@@ -23,6 +23,7 @@ find_package(catkin REQUIRED
     serial
     std_msgs
     tf
+    sensor_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread)
@@ -54,6 +55,7 @@ catkin_package(
     serial
     std_msgs
     tf
+    sensor_msgs
 )
 
 
