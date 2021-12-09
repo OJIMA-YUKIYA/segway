@@ -500,8 +500,8 @@ public:
         // Setup keep alive timer
         // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
 
-        ros::AsyncSpinner spinner(2);
-        spinner.start();
+        // ros::AsyncSpinner spinner(2);
+        // spinner.start();
 
 
         this->odometry_reset_start_time = ros::Time::now();
@@ -851,7 +851,7 @@ private:
         // this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
         // this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
         // this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
-        this->joy_sub = n->subscribe("/joy", 1000, &SegwayRMPNode::joy_callback, this);
+        this->joy_sub = n->subscribe("/joy", 500, &SegwayRMPNode::joy_callback, this);
 
         // Advertise the SegwayStatusStamped
         // this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
