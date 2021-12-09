@@ -835,7 +835,9 @@ public:
     }
 
     void joy_callback(const sensor_msgs::Joy& msg) {
-        this->segway_rmp->move(msg.axes[4] * 0.1, msg.axes[0] * 0.1);
+        if (this->connected) {
+            this->segway_rmp->move(msg.axes[4] * 0.1, msg.axes[0] * 0.1);
+        }
         return;
     }
 
