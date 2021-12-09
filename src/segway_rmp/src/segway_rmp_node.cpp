@@ -850,7 +850,7 @@ private:
         this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
         this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
         this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
-        this->joy_sub = n->subscribe("joy", 1000, &SegwayRMPNode::joy_callback, this);
+        this->joy_sub = n->subscribe("/joy", 1000, &SegwayRMPNode::joy_callback, this);
 
         // Advertise the SegwayStatusStamped
         this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
