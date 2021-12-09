@@ -837,8 +837,8 @@ public:
 
     void joy_callback(const sensor_msgs::Joy& msg) {
         if (this->connected) {
-            ROS_INFO("%lf, %lf", msg.axes[3] * 0.2, msg.axes[0] * 0.5);
-            this->segway_rmp->move(msg.axes[3] * 0.2, msg.axes[0] * 0.5);
+            ROS_INFO("%lf, %lf", msg.axes[3] * 0.2, msg.axes[0] * 1.0);
+            this->segway_rmp->move(msg.axes[3] * 0.2, msg.axes[0] * 1.0);
             ros::Duration(0.05).sleep();
         }
         return;
