@@ -39,3 +39,8 @@ fi
 if [[ $(ps | grep sora_arm64.run) ]]; then
     killall sora_arm64.run
 fi
+
+
+if [[ $(ps | grep joy_node) ]]; then
+    killall joy_node
+fi

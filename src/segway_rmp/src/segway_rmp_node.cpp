@@ -537,7 +537,7 @@ public:
             this->segway_rmp->setMaxTurnScaleFactor(1.0);
             this->segway_rmp->setBalanceModeLocking(false);
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
-            ros::spin();
+            // ros::spin();
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
                 // while (ros::ok()) {
@@ -839,6 +839,7 @@ public:
 
     void joy_callback(const sensor_msgs::Joy& msg) {
         if (this->connected) {
+            ROS_INFO("%lf, %lf", msg.axes[0], msg.axes[4]);
             this->lin = msg.axes[3] * 0.2;
             this->ang = msg.axes[0] * 1.0;
             // ros::Duration(0.05).sleep();
@@ -853,7 +854,7 @@ private:
         // this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
         // this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
         // this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
-        this->joy_sub = n->subscribe("/joy", 500, &SegwayRMPNode::joy_callback, this);
+        this->joy_sub = n->subscribe("/joy", 100, &SegwayRMPNode::joy_callback, this);
 
         // Advertise the SegwayStatusStamped
         // this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
