@@ -857,11 +857,11 @@ private:
         this->joy_sub = n->subscribe("/joy", 100, &SegwayRMPNode::joy_callback, this);
 
         // Advertise the SegwayStatusStamped
-        // this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
+        this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
         // Advertise the Odometry Msg
-        // this->odom_pub = n->advertise<nav_msgs::Odometry>("odom", 50);
+        this->odom_pub = n->advertise<nav_msgs::Odometry>("odom", 50);
 
-        // this->vel_pub = n->advertise<segway_rmp::VelocityStatus>("vel", 1000);
+        this->vel_pub = n->advertise<segway_rmp::VelocityStatus>("vel", 1000);
     }
 
     void setupSegwayRMP() {
@@ -1040,7 +1040,8 @@ private:
 
     ros::Timer keep_alive_timer;
 
-    ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber, halt_sub, joy_sub;
+    // ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber, halt_sub;
+    ros::Subscriber  joy_sub;
     ros::Publisher segway_status_pub;
     ros::Publisher odom_pub;
     ros::Publisher vel_pub;
