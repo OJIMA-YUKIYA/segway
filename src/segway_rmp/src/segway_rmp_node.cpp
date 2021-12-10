@@ -840,8 +840,8 @@ public:
     void joy_callback(const sensor_msgs::Joy& msg) {
         if (this->connected) {
             ROS_INFO("%lf, %lf", msg.axes[0], msg.axes[3]);
-            this->lin = msg.axes[3] * 0.35;
-            this->ang = msg.axes[0] * 10.0;
+            this->lin = msg.axes[3] * 0.5;
+            this->ang = msg.axes[0] * 30.0;
             if (this->lin < 0) {
                 this->ang = - this->ang;
             }
