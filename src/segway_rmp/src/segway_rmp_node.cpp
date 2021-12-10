@@ -58,7 +58,7 @@ void handleErrorMessages(const std::string &msg) {ROS_ERROR("%s",msg.c_str());}
 // void handleStatusWrapper(segwayrmp::SegwayStatus::Ptr &ss);
 void handleStatusWrapper(segwayrmp::SegwayStatus::Ptr ss); //  removed '&' by Ojima
 
-const double dt = 1.0/100.0;
+const double dt = 1.0/20.0;
 
 class Lavel {
 public:
@@ -841,7 +841,10 @@ public:
         if (this->connected) {
             ROS_INFO("%lf, %lf", msg.axes[0], msg.axes[3]);
             this->lin = msg.axes[3] * 0.4;
-            this->ang = msg.axes[0] * 3.0;
+            this->ang = msg.axes[0] * 10.0;
+            if (this->lin < 0) {
+                this->ang = - this->ang;
+            }
             // ros::Duration(0.05).sleep();
         }
         return;
