@@ -5,4 +5,4 @@ roscore &
 ./devel/lib/segway_rmp/segway_rmp_node &
 ./devel/lib/segway_rmp/accel_cmd &
 
-/usr/bin/google-chrome http://192.168.1.230:8080/html/test.html &
+#/usr/bin/google-chrome http://192.168.1.230:8080/html/test.html &

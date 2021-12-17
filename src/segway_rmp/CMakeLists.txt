@@ -33,7 +33,7 @@ set(libsegwayrmp_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/../../libsegwayrmp/include)
 
 add_message_files(
   DIRECTORY msg
-  FILES SegwayStatus.msg SegwayStatusStamped.msg VelocityStatus.msg AccelCmd.msg
+  FILES SegwayStatus.msg SegwayStatusStamped.msg VelocityStatus.msg AccelCmd.msg jyja.msg
 )
 
 generate_messages(DEPENDENCIES std_msgs)

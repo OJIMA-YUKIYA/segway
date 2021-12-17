@@ -42,6 +42,7 @@
 
 #include "segway_rmp/VelocityStatus.h"
 #include "segway_rmp/AccelCmd.h"
+#include "segway_rmp/jyja.h"
 
 class SegwayRMPNode;
 
@@ -840,8 +841,21 @@ public:
     void joy_callback(const sensor_msgs::Joy& msg) {
         if (this->connected) {
             ROS_INFO("%lf, %lf", msg.axes[0], msg.axes[3]);
-            this->lin = msg.axes[3] * 0.7;
-            this->ang = msg.axes[0] * 50.0;
+            this->lin = msg.axes[3] * 0.8;
+            this->ang = msg.axes[0] * 60.0;
+            if (this->lin < 0) {
+                this->ang = - this->ang;
+            }
+            // ros::Duration(0.05).sleep();
+        }
+        return;
+    }
+
+    void jyja_callback(const segway_rmp::jyja& msg) {
+        if (this->connected) {
+            ROS_INFO("%lf, %lf", msg.leftright, msg.frontrear);
+            this->lin = msg.leftright * 0.8;
+            this->ang = msg.frontrear * 60.0;
             if (this->lin < 0) {
                 this->ang = - this->ang;
             }
@@ -858,6 +872,7 @@ private:
         // this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
         // this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
         this->joy_sub = n->subscribe("/joy", 100, &SegwayRMPNode::joy_callback, this);
+        this->jyja_sub = n->subscribe("/accel_cmd/jyja", 100, &SegwayRMPNode::jyja_callback, this);
 
         // Advertise the SegwayStatusStamped
         this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
@@ -1044,7 +1059,7 @@ private:
     ros::Timer keep_alive_timer;
 
     // ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber, halt_sub;
-    ros::Subscriber  joy_sub;
+    ros::Subscriber  joy_sub, jyja_sub;
     ros::Publisher segway_status_pub;
     ros::Publisher odom_pub;
     ros::Publisher vel_pub;
