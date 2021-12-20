@@ -1,1 +1,0 @@
-./momo_x64 sora --signaling-url wss://node-01.sora-labo.shiguredo.jp/signaling --channel-id OJIMA-YUKIYA@sora-devtools --video true --audio true --video-codec-type VP9 --video-bit-rate 1000  --role sendrecv --multistream true --metadata '{"signaling_key":"wH_hp6DYomonzVH1eu8mDUN0fgEzmynp6HyXx2HrqUB1v4ds"}'
