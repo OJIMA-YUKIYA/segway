@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 # ps | grep momo | grep -v momo.run
 if [[ $(ps | grep momo_x64 | grep -v 'run') ]]; then
     killall momo_x64
