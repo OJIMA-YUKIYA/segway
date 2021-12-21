@@ -47,9 +47,9 @@
     <input type="radio" name="q1"> 後退
     <pre><div id="result_velocity_plan"></div></pre>
     <input type="button" onclick="sendDataChannel();" value="送信">　　<input type="button" onclick="quit_accel_cmd();" value="強制終了"><br><br>
-    <h4>joystick</h4>
-    反時計周り<input type="range" id="leftright" max="50" min="-50" step="0.000001" value="0"></input><div id="leftright_out" style="display: inline-block; _display: inline;">0</div>(deg/sec)<br>
-    前方　　　<input type="range" id="frontrear" max="0.7" min="-0.7" step="0.000001" value="0"></input><div id="frontrear_out" style="display: inline-block; _display: inline;">0</div>(m/sec)<br><br>
+    <!-- <h4>joystick</h4> -->
+    <!-- 反時計周り<input type="range" id="leftright" max="50" min="-50" step="0.000001" value="0"></input><div id="leftright_out" style="display: inline-block; _display: inline;">0</div>(deg/sec)<br> -->
+    <!-- 前方　　　<input type="range" id="frontrear" max="0.7" min="-0.7" step="0.000001" value="0"></input><div id="frontrear_out" style="display: inline-block; _display: inline;">0</div>(m/sec)<br><br> -->
     <input id="logstartbutton" type="button" onclick="startLog();" value="記録開始">　<input id="logendbutton" type="button" onclick="endLog();" value="記録終了">
     <main>
         <div class="VelocityStatus">
@@ -69,8 +69,8 @@
             <br>
         </div>
     </main>
-    <script type='text/javascript' src='./webrtc.js'></script>
-    <!-- <script type='text/javascript' src='./js/sora.min.js'></script>
+    <script type='text/javascript' src='./js/webrtc.js'></script>
+    <script type='text/javascript' src='./js/sora.min.js'></script>
     <script type="text/javascript">
         const debug = true;
         // const sora = Sora.connection("wss://node-01.sora-labo.shiguredo.jp/signaling", debug);
@@ -83,16 +83,16 @@
         const options = {
             multistream: true,
             video: true,
-            audio: false,
+            audio: true,
             dataChannelSignaling: true,
             dataChannels: [
                 {
-                    label: "#example",
+                    label: "#sora-devtools",
                     direction: "sendrecv"
                 }
             ]
         };
-        let recvonly = sora.recvonly(channelId, metadata, options);
+        let recvonly = sora.recvonly(channelId, null, options);
         recvonly.connect();
 
         // recvonly.on("track", (event) => {
@@ -116,6 +116,9 @@
         recvonly.on('message', (event) => {
             let msg = new TextDecoder().decode(event.data);
             console.log('recieve: ' + msg);
+            if (dataChannel == null) {
+                console.log("hello");
+            }
             dataChannel.send(new TextEncoder().encode(msg));
         });
 
@@ -131,6 +134,6 @@
         //   console.error(e);
         // });
     </script>
-    <script type="text/javascript">document.getElementById("connect").click();</script> -->
+    <script type="text/javascript">document.getElementById("connect").click();</script>
   </body>
 </html>
