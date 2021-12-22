@@ -111,63 +111,63 @@ public:
         // close(fd_write);
     }
 
-    void keepAliveCallback(const ros::TimerEvent& e) {
-        // int fd_read = open("/home/ojima/segway/serial_out", O_RDONLY);
-        // this->fd_read = open("/home/ojima/segway/serial_out", O_RDONLY);
-        int req_size = 50;
-        int count = 0;
-        char buf_ptr[50];
-
-        count++;
-        int read_size = 0;
-        read_size = read(this->fd_read, buf_ptr, req_size);
-
-        if (read_size < 1) {
-            return;
-        }
-        buf_ptr[read_size] = '\0';
-        std::string str = std::string(buf_ptr);
-        std::cout << "\nread_size: " << read_size << " message: " << str << '\n';
-        if (str.substr(0, 4) == "quit") {
-            std::cout << "accel_cmd を終了\n";
-            std_msgs::String msg;
-            msg.data = "quit";
-            this->halt_pub.publish(msg);
-            close(this->fd_write);
-            close(this->fd_read);
-            exit(0);
-        }
-        if (read_size > 4 && str.substr(0, 4) == "acce") {
-            segway_rmp::AccelCmd msg;
-            str = str.substr(4, str.size());
-            int i = str.find(',');
-            msg.T2 = std::stod(str.substr(0, i));
-            str = str.substr(i + 1, str.size());
-            i = str.find(',');
-            msg.a = std::stod(str.substr(0, i));
-            str = str.substr(i + 1, str.size());
-            i = str.find(',');
-            msg.vel_limit =  std::stod(str.substr(0, i));
-            msg.reverse = std::stoi(str.substr(i + 1, str.size()));
-            this->accel_pub.publish(msg);
-        }
-        else if (read_size > 4 && str.substr(0, 4) == "jyja") {
-            segway_rmp::jyja msg;
-            str = str.substr(4, str.size());
-            int i = str.find(',');
-            msg.leftright = std::stod(str.substr(0, i));
-            str = str.substr(i + 1, str.size());
-            i = str.find('j');
-            if (i > str.size()) {
-                msg.frontrear = std::stod(str.substr(0, str.size()));
-            }
-            else {
-                msg.frontrear = std::stod(str.substr(0, i));
-            }
-            this->jyja_pub.publish(msg);
-        }
-        // close(fd_read);
-    }
+    // void keepAliveCallback(const ros::TimerEvent& e) {
+    //     // int fd_read = open("/home/ojima/segway/serial_out", O_RDONLY);
+    //     // this->fd_read = open("/home/ojima/segway/serial_out", O_RDONLY);
+    //     int req_size = 50;
+    //     int count = 0;
+    //     char buf_ptr[50];
+    //
+    //     count++;
+    //     int read_size = 0;
+    //     read_size = read(this->fd_read, buf_ptr, req_size);
+    //
+    //     if (read_size < 1) {
+    //         return;
+    //     }
+    //     buf_ptr[read_size] = '\0';
+    //     std::string str = std::string(buf_ptr);
+    //     std::cout << "\nread_size: " << read_size << " message: " << str << '\n';
+    //     if (str.substr(0, 4) == "quit") {
+    //         std::cout << "accel_cmd を終了\n";
+    //         std_msgs::String msg;
+    //         msg.data = "quit";
+    //         this->halt_pub.publish(msg);
+    //         close(this->fd_write);
+    //         close(this->fd_read);
+    //         exit(0);
+    //     }
+    //     if (read_size > 4 && str.substr(0, 4) == "acce") {
+    //         segway_rmp::AccelCmd msg;
+    //         str = str.substr(4, str.size());
+    //         int i = str.find(',');
+    //         msg.T2 = std::stod(str.substr(0, i));
+    //         str = str.substr(i + 1, str.size());
+    //         i = str.find(',');
+    //         msg.a = std::stod(str.substr(0, i));
+    //         str = str.substr(i + 1, str.size());
+    //         i = str.find(',');
+    //         msg.vel_limit =  std::stod(str.substr(0, i));
+    //         msg.reverse = std::stoi(str.substr(i + 1, str.size()));
+    //         this->accel_pub.publish(msg);
+    //     }
+    //     else if (read_size > 4 && str.substr(0, 4) == "jyja") {
+    //         segway_rmp::jyja msg;
+    //         str = str.substr(4, str.size());
+    //         int i = str.find(',');
+    //         msg.leftright = std::stod(str.substr(0, i));
+    //         str = str.substr(i + 1, str.size());
+    //         i = str.find('j');
+    //         if (i > str.size()) {
+    //             msg.frontrear = std::stod(str.substr(0, str.size()));
+    //         }
+    //         else {
+    //             msg.frontrear = std::stod(str.substr(0, i));
+    //         }
+    //         this->jyja_pub.publish(msg);
+    //     }
+    //     // close(fd_read);
+    // }
 
     int run(void) {
         while (ros::ok()) {
@@ -185,19 +185,24 @@ public:
         // this->keep_alive_timer = this->n->createTimer(ros::Duration(1.0/100.0), &A::keepAliveCallback, this);
         // ros::AsyncSpinner spinner(2);
         // spinner.start();
-        ros::Rate loop_rate(50);
+        ros::Rate loop_rate(100);
+
+        int read_size;
+
+        for (int i = 0; i < 10; i++) {
+            char wast[1000];
+            read_size = read(this->fd_read, wast, 1050);
+            ros::spinOnce();
+            loop_rate.sleep();
+        }
         while (ros::ok()) {
             // int fd_write = open("/home/ojima/segway/serial_out", O_WRONLY);
             // ROS_INFO("hello");
             // char buf_ptr[50] = "hello\n";
             // write(fd_write, buf_ptr, 50);
             // close(fd_write);
-            int req_size = 50;
-            int count = 0;
+            int req_size = 100;
             char buf_ptr[50];
-
-            count++;
-            int read_size = 0;
             read_size = read(this->fd_read, buf_ptr, req_size);
 
             if (read_size < 1) {
@@ -205,7 +210,7 @@ public:
             }
             buf_ptr[read_size] = '\0';
             std::string str = std::string(buf_ptr);
-            std::cout << "\nread_size: " << read_size << " message: " << str << '\n';
+            // std::cout << "\nread_size: " << read_size << " message: " << str << '\n';
             if (str.substr(0, 4) == "quit") {
                 std::cout << "accel_cmd を終了\n";
                 std_msgs::String msg;
@@ -254,7 +259,7 @@ private:
     ros::NodeHandle* n;
     ros::Publisher halt_pub, accel_pub, jyja_pub;
     ros::Subscriber VelocityStatus_sub, SegwayStatus_sub;
-    ros::Timer keep_alive_timer;
+    // ros::Timer keep_alive_timer;
 
     int fd_read, fd_write;
 };

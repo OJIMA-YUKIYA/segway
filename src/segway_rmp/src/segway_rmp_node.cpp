@@ -853,7 +853,7 @@ public:
 
     void jyja_callback(const segway_rmp::jyja& msg) {
         if (this->connected) {
-            ROS_INFO("%lf, %lf", msg.leftright, msg.frontrear);
+            // ROS_INFO("%lf, %lf", msg.leftright, msg.frontrear);
             this->ang = msg.leftright;
             this->lin = msg.frontrear;
             if (this->lin < 0) {
