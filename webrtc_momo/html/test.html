@@ -123,6 +123,13 @@
         });
 
 
+        setInterval(sendHello, 1000.0/3.0);
+
+        function sendHello() {
+            recvonly.sendMessage("#sora-devtools", new TextEncoder().encode("Hello from xavier nx"));
+        }
+
+
         // navigator.mediaDevices
         // .getUserMedia({ audio: true, video: true })
         // .then((stream) => sendrecv.connect(stream))
