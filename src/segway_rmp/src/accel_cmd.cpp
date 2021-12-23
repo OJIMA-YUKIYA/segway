@@ -185,7 +185,7 @@ public:
         // this->keep_alive_timer = this->n->createTimer(ros::Duration(1.0/100.0), &A::keepAliveCallback, this);
         // ros::AsyncSpinner spinner(2);
         // spinner.start();
-        ros::Rate loop_rate(100);
+        ros::Rate loop_rate(40);
 
         int read_size;
 
