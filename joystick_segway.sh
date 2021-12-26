@@ -6,6 +6,6 @@ source /home/tristar/segway/devel/setup.bash
 ./momo_arm64.run
 source /home/tristar/segway/devel/setup.bash
 /opt/ros/melodic/bin/roscore &
-/opt/ros/melodic/bin/rosrun joy joy_node &
+# /opt/ros/melodic/bin/rosrun joy joy_node &
 /home/tristar/segway/devel/lib/segway_rmp/segway_rmp_node &
 ./cmder.run
