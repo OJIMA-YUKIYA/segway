@@ -3,7 +3,7 @@ const T2_Input = document.getElementById('T2_text');
 const accel_Input = document.getElementById('accel_text');
 const max_velocity_Input = document.getElementById('max_velocity_text');
 const reverse_Input = document.getElementsByName('q1');
-// const leftright_progress = document.getElementById('leftright');
+const leftright_progress = document.getElementById('leftright');
 
 var ideal_velocity_logData = '';
 var real_velocity_logData = '';
@@ -522,26 +522,26 @@ function endLog() {
 
 // joystick
 
-// window.addEventListener("gamepadconnected", function(e) {
-//     // gp = navigator.getGamepads()[e.gamepad.index];
-//     console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
-//     e.gamepad.index, e.gamepad.id,
-//     e.gamepad.buttons.length, e.gamepad.axes.length);
-//     setInterval(gameLoop, 1000.0/50.0);
-//     gameLoop();
-// });
-// function gameLoop() {
-//     let gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
-//     let gp = gamepads[0];
-//     if (gp != null) {
-//         let ang = -50*gp.axes[0];
-//         let lin = -0.8*gp.axes[3];
-//         document.getElementById('leftright').value = ang;
-//         document.getElementById('leftright_out').innerHTML = ang.toFixed(3);
-//         document.getElementById('frontrear').value = lin;
-//         document.getElementById('frontrear_out').innerHTML = lin.toFixed(3);
-//         if (dataChannel != null) {
-//             dataChannel.send(new TextEncoder().encode("jyja" + ang.toFixed(3) + "," + lin.toFixed(3) + "\n"));
-//         }
-//     }
-// }
+window.addEventListener("gamepadconnected", function(e) {
+    // gp = navigator.getGamepads()[e.gamepad.index];
+    console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+    e.gamepad.index, e.gamepad.id,
+    e.gamepad.buttons.length, e.gamepad.axes.length);
+    setInterval(gameLoop, 1000.0/50.0);
+    gameLoop();
+});
+function gameLoop() {
+    let gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+    let gp = gamepads[0];
+    if (gp != null) {
+        let ang = -50*gp.axes[0];
+        let lin = -0.8*gp.axes[3];
+        document.getElementById('leftright').value = ang;
+        document.getElementById('leftright_out').innerHTML = ang.toFixed(3);
+        document.getElementById('frontrear').value = lin;
+        document.getElementById('frontrear_out').innerHTML = lin.toFixed(3);
+        if (dataChannel != null) {
+            dataChannel.send(new TextEncoder().encode("jyja" + ang.toFixed(3) + "," + lin.toFixed(3) + "\n"));
+        }
+    }
+}
