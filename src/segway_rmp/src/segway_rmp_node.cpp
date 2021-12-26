@@ -872,9 +872,9 @@ private:
     // Function
     void setupROSComms() {
         // Subscribe to command velocities
-        // this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
-        // this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
-        // this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
+        this->cmd_velSubscriber = n->subscribe("cmd_vel", 1000, &SegwayRMPNode::cmd_velCallback, this);
+        this->cmd_accelSubscriber = n->subscribe("/accel_cmd/accel", 1000, &SegwayRMPNode::cmd_accelCallback, this);
+        this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
         this->joy_sub = n->subscribe("/joy", 100, &SegwayRMPNode::joy_callback, this);
         this->jyja_sub = n->subscribe("/accel_cmd/jyja", 100, &SegwayRMPNode::jyja_callback, this);
 
@@ -1062,7 +1062,7 @@ private:
 
     ros::Timer keep_alive_timer;
 
-    // ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber, halt_sub;
+    ros::Subscriber cmd_velSubscriber, cmd_accelSubscriber, halt_sub;
     ros::Subscriber  joy_sub, jyja_sub;
     ros::Publisher segway_status_pub;
     ros::Publisher odom_pub;
