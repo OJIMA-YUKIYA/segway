@@ -610,9 +610,13 @@ public:
 
             if (this->latch == 1) {
                 la = this->cv->controller();
+                this->lin = la.linear_vel;
+                this->ang = la.angular_vel;
             }
             else if (this->latch == 2) {
                 la = this->ba->controller();
+                this->lin = la.linear_vel;
+                this->ang = la.angular_vel;
             }
 
             try {
@@ -852,7 +856,7 @@ public:
     }
 
     void jyja_callback(const segway_rmp::jyja& msg) {
-        if (this->connected) {
+        if (this->connected && this->latch == 0) {
             // ROS_INFO("%lf, %lf", msg.leftright, msg.frontrear);
             this->ang = msg.leftright;
             this->lin = msg.frontrear;
