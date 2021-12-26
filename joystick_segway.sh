@@ -1,7 +1,7 @@
 #!/bin/bash
 cd /home/tristar/segway
 source /home/tristar/segway/devel/setup.bash
-./sora_arm64.run
+# ./sora_arm64.run
 #/usr/bin/chromium-browser http://127.0.0.1:8080/html/test.html &
 ./momo_arm64.run
 source /home/tristar/segway/devel/setup.bash
