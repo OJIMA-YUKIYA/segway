@@ -203,6 +203,7 @@ function prepareNewConnection() {
         // console.log('sgss');
         let target = document.getElementById("sgss");
         target.innerHTML = show;
+        recvonly.sendMessage("#sora-devtools", new TextEncoder().encode(show));
     }
     else if (msg.substr(0, 4) == 'seve') {
         // console.log('seve');
@@ -216,6 +217,7 @@ function prepareNewConnection() {
             real_velocity_logData = real_velocity_logData + show + '\n';
         }
     }
+
     // console.log(show);
   };
 
