@@ -122,10 +122,10 @@
         });
 
 
-        setInterval(sendHello, 1000.0*5.0);
-
+        setInterval(sendHello, 1000.0*3.0);
+        let counta = 0;
         function sendHello() {
-            recvonly.sendMessage("#sora-devtools", new TextEncoder().encode("Hello from xavier nx"));
+            recvonly.sendMessage("#sora-devtools", new TextEncoder().encode("Hello from xavier nx " + counta));
         }
 
 
