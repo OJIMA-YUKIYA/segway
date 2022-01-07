@@ -863,7 +863,7 @@ public:
             // if (this->lin < 0) {
             //     this->ang = - this->ang;
             // }
-            if (this->lin >= 0) {
+            if (msg.frontrear >= 0) {
                 this->segway_rmp->move(msg.leftright, msg.frontrear);
             }
             else {
