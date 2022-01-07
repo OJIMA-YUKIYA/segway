@@ -866,10 +866,10 @@ public:
             //     this->ang = - this->ang;
             // }
             if (msg.frontrear >= 0) {
-                this->segway_rmp->move(msg.leftright, msg.frontrear);
+                this->segway_rmp->move(msg.frontrear, msg.leftright);
             }
             else {
-                this->segway_rmp->move(-msg.leftright, msg.frontrear);
+                this->segway_rmp->move(msg.frontrear, -msg.leftright);
             }
             // ros::Duration(0.05).sleep();
         }
