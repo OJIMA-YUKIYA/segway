@@ -81,7 +81,7 @@
         setInterval(sendzero, 1000/40);
         function sendzero() {
             if (isDrawing) {
-                dataChannel.send(new TextEncoder().encode("jyja" + ((x - myPics.width/2)/(myPics.width/2)*40).toFixed(3) + "," + ((-y + myPics.height/2)/(myPics.height/2)*0.5).toFixed(3) + "\n"));
+                dataChannel.send(new TextEncoder().encode("jyja" + (-(x - myPics.width/2)/(myPics.width/2)*40).toFixed(3) + "," + ((-y + myPics.height/2)/(myPics.height/2)*0.5).toFixed(3) + "\n"));
             }
             else {
                 dataChannel.send(new TextEncoder().encode("jyja0,0\n"));

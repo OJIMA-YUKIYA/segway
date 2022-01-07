@@ -858,10 +858,16 @@ public:
     void jyja_callback(const segway_rmp::jyja& msg) {
         if (this->connected && this->latch == 0) {
             // ROS_INFO("%lf, %lf", msg.leftright, msg.frontrear);
-            this->ang = msg.leftright;
-            this->lin = msg.frontrear;
-            if (this->lin < 0) {
-                this->ang = - this->ang;
+            // this->ang = msg.leftright;
+            // this->lin = msg.frontrear;
+            // if (this->lin < 0) {
+            //     this->ang = - this->ang;
+            // }
+            if (this->lin >= 0) {
+                this->segway_rmp->move(msg.leftright, msg.frontrear);
+            }
+            else {
+                this->segway_rmp->move(-msg.leftright, msg.frontrear);
             }
             // ros::Duration(0.05).sleep();
         }
