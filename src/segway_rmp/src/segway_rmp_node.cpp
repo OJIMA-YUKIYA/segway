@@ -531,11 +531,11 @@ public:
     bool spin() {
         if (ros::ok() && this->connected) {
             ROS_INFO("Segway RMP Ready.");
-            this->segway_rmp->resetAllIntegrators();
-            this->segway_rmp->setCurrentLimitScaleFactor(1.0);
+            // this->segway_rmp->resetAllIntegrators();
             this->segway_rmp->setMaxVelocityScaleFactor(1.0);
             this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
             this->segway_rmp->setMaxTurnScaleFactor(1.0);
+            this->segway_rmp->setCurrentLimitScaleFactor(1.0);
             this->segway_rmp->setBalanceModeLocking(false);
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
             // ros::spin();
