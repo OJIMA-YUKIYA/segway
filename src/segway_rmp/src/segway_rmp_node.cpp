@@ -619,13 +619,15 @@ public:
                 this->ang = la.angular_vel;
             }
 
-            try {
-                this->segway_rmp->move(this->lin, this->ang);
-            } catch (std::exception& e) {
-                std::string e_msg(e.what());
-                ROS_ERROR("Error commanding Segway RMP: %s", e_msg.c_str());
-                this->connected = false;
-                this->disconnect();
+            if (this->latch == 1 || this->latch == 2) {
+                try {
+                    this->segway_rmp->move(this->lin, this->ang);
+                } catch (std::exception& e) {
+                    std::string e_msg(e.what());
+                    ROS_ERROR("Error commanding Segway RMP: %s", e_msg.c_str());
+                    this->connected = false;
+                    this->disconnect();
+                }
             }
         }
     }
@@ -1139,6 +1141,7 @@ private:
 
     ChangeVelocity* cv;
     int latch;
+    int counta;
 
     double lin, ang;
 
