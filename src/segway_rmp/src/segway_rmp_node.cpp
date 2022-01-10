@@ -476,6 +476,10 @@ public:
         this->latch = 0;
         this->lin = 0;
         this->ang = 0;
+        this->before_target_linear_vel = 0;
+        this->linear_vel_feedback = 0;
+
+        this->zero_judge = 0;
     }
 
     ~SegwayRMPNode() {
@@ -536,8 +540,9 @@ public:
             this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
             this->segway_rmp->setMaxTurnScaleFactor(1.0);
             this->segway_rmp->setCurrentLimitScaleFactor(1.0);
-            this->segway_rmp->setBalanceModeLocking(false);
+            this->segway_rmp->setBalanceModeLocking(true);
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
+            this->segway_rmp->setControllerGainSchedule(segwayrmp::tall);
             // ros::spin();
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
@@ -607,8 +612,36 @@ public:
             boost::mutex::scoped_lock lock(this->m_mutex);
 
             Lavel la;
-
-            if (this->latch == 1) {
+            if (this->latch == 0) {
+                if (this->joy_b4_arrival_time < this->joy_arrival_time) {
+                    this->joy_b4_arrival_time = this->joy_arrival_time;
+                    zero_judge = 0;
+                }
+                else {
+                    zero_judge += 1;
+                    if (zero_judge == 20) {
+                        this->lin = 0;
+                        this->ang = 0;
+                        zero_judge = 0;
+                    }
+                }
+            }
+            if (this->latch == 3) {
+                if (this->jyja_b4_arrival_time < this->jyja_arrival_time) {
+                    this->jyja_b4_arrival_time = this->jyja_arrival_time;
+                    zero_judge = 0;
+                }
+                else {
+                    zero_judge += 1;
+                    if (zero_judge == 20) {
+                        this->lin = 0;
+                        this->ang = 0;
+                        zero_judge = 0;
+                        this->latch = 0;
+                    }
+                }
+            }
+            else if (this->latch == 1) {
                 la = this->cv->controller();
                 this->lin = la.linear_vel;
                 this->ang = la.angular_vel;
@@ -619,15 +652,13 @@ public:
                 this->ang = la.angular_vel;
             }
 
-            if (this->latch == 1 || this->latch == 2) {
-                try {
-                    this->segway_rmp->move(this->lin, this->ang);
-                } catch (std::exception& e) {
-                    std::string e_msg(e.what());
-                    ROS_ERROR("Error commanding Segway RMP: %s", e_msg.c_str());
-                    this->connected = false;
-                    this->disconnect();
-                }
+            try {
+                this->segway_rmp->move(this->lin, this->ang);
+            } catch (std::exception& e) {
+                std::string e_msg(e.what());
+                ROS_ERROR("Error commanding Segway RMP: %s", e_msg.c_str());
+                this->connected = false;
+                this->disconnect();
             }
         }
     }
@@ -669,8 +700,7 @@ public:
           }
         }
 
-        this->v1 = this->v2;
-        this->v2 = (ss.left_wheel_speed + ss.right_wheel_speed) / 2.0;
+        this->linear_vel_feedback = (ss.left_wheel_speed + ss.right_wheel_speed) / 2.0;
 
         this->sss_msg.segway.pitch_angle = ss.pitch * degrees_to_radians;
         this->sss_msg.segway.pitch_rate = ss.pitch_rate * degrees_to_radians;
@@ -845,10 +875,11 @@ public:
     }
 
     void joy_callback(const sensor_msgs::Joy& msg) {
-        if (this->connected) {
+        if (this->connected && this->latch == 0) {
             ROS_INFO("%lf, %lf", msg.axes[0], msg.axes[3]);
             this->lin = msg.axes[3] * 0.8;
             this->ang = msg.axes[0] * 60.0;
+            this->joy_arrival_time = ros::Time::now();
             if (this->lin < 0) {
                 this->ang = - this->ang;
             }
@@ -858,19 +889,26 @@ public:
     }
 
     void jyja_callback(const segway_rmp::jyja& msg) {
-        if (this->connected && this->latch == 0) {
+        if (this->connected && (this->latch == 0 || this->latch == 3)) {
             // ROS_INFO("%lf, %lf", msg.leftright, msg.frontrear);
             // this->ang = msg.leftright;
             // this->lin = msg.frontrear;
             // if (this->lin < 0) {
             //     this->ang = - this->ang;
             // }
+            this->latch = 3;
+            this->jyja_arrival_time = ros::Time::now();
             if (msg.frontrear >= 0) {
-                this->segway_rmp->move(msg.frontrear, msg.leftright);
+                // this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.8 + msg.frontrear;
+                this->lin = msg.frontrear;
+                this->ang = msg.leftright;
             }
             else {
-                this->segway_rmp->move(msg.frontrear, -msg.leftright);
+                // this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.8 + msg.frontrear;
+                this->lin = msg.frontrear;
+                this->ang = -msg.leftright;
             }
+            // this->before_target_linear_vel = msg.frontrear;
             // ros::Duration(0.05).sleep();
         }
         return;
@@ -1099,6 +1137,15 @@ private:
     double linear_vel;
     double angular_vel; // The angular velocity in deg/s
 
+    double before_target_linear_vel;
+    double linear_vel_feedback;
+
+    int zero_judge;
+    ros::Time joy_arrival_time;
+    ros::Time joy_b4_arrival_time;
+    ros::Time jyja_arrival_time;
+    ros::Time jyja_b4_arrival_time;
+
     double target_linear_vel;  // The ideal linear velocity in m/s
     double target_angular_vel; // The ideal angular velocity in deg/s
 
@@ -1141,7 +1188,6 @@ private:
 
     ChangeVelocity* cv;
     int latch;
-    int counta;
 
     double lin, ang;
 
