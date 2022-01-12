@@ -653,6 +653,12 @@ public:
             }
 
             try {
+                if (this->lin > 1.0) {
+                    this->lin = 1.0;
+                }
+                else if (this->lin < -1.0) {
+                    this->lin = -1.0;
+                }
                 this->segway_rmp->move(this->lin, this->ang);
             } catch (std::exception& e) {
                 std::string e_msg(e.what());
