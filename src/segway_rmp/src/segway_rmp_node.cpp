@@ -652,7 +652,7 @@ public:
             else if (this->latch == 2) {
                 la = this->ba->controller();
                 // this->lin = this->gain*la.linear_vel;
-                this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.8 + la.linear_vel;
+                this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.1 + la.linear_vel;
                 this->before_target_linear_vel = this->lin;
                 this->ang = la.angular_vel;
             }
