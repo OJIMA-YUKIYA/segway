@@ -619,7 +619,7 @@ public:
                 }
                 else {
                     zero_judge += 1;
-                    if (zero_judge == 20) {
+                    if (zero_judge == 10) {
                         this->lin = 0;
                         this->ang = 0;
                         zero_judge = 0;
