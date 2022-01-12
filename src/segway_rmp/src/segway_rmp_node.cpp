@@ -478,8 +478,8 @@ public:
         this->ang = 0;
         this->before_target_linear_vel = 0;
         this->linear_vel_feedback = 0;
-
         this->zero_judge = 0;
+        this->gain = 1.0;
     }
 
     ~SegwayRMPNode() {
@@ -651,7 +651,7 @@ public:
             }
             else if (this->latch == 2) {
                 la = this->ba->controller();
-                this->lin = 1.2*la.linear_vel;
+                this->lin = this->gain*la.linear_vel;
                 this->ang = la.angular_vel;
             }
 
@@ -1205,6 +1205,7 @@ private:
     BanAccel* ba;
 
     double v1, v2;
+    double gain;
 }; // class SegwayRMPNode
 
 // Callback wrapper
