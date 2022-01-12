@@ -505,10 +505,10 @@ public:
         this->ba = new BanAccel(this->vel_pub, &(this->latch));
 
         // Setup keep alive timer
-        this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
-
-        ros::AsyncSpinner spinner(2);
-        spinner.start();
+        // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
+        //
+        // ros::AsyncSpinner spinner(2);
+        // spinner.start();
 
 
         this->odometry_reset_start_time = ros::Time::now();
