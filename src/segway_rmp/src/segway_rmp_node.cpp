@@ -505,10 +505,10 @@ public:
         this->ba = new BanAccel(this->vel_pub, &(this->latch));
 
         // Setup keep alive timer
-        // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
-        //
-        // ros::AsyncSpinner spinner(2);
-        // spinner.start();
+        this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
+
+        ros::AsyncSpinner spinner(1);
+        spinner.start();
 
 
         this->odometry_reset_start_time = ros::Time::now();
@@ -544,7 +544,6 @@ public:
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
             this->segway_rmp->setControllerGainSchedule(segwayrmp::tall);
             // ros::spin();
-            ros::Rate loop_rate(20);
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
                 // while (ros::ok()) {
@@ -592,63 +591,6 @@ public:
 
                 // boost::mutex::scoped_lock lock(this->m_mutex);
 
-                Lavel la;
-                if (this->latch == 0) {
-                    if (this->joy_b4_arrival_time < this->joy_arrival_time) {
-                        this->joy_b4_arrival_time = this->joy_arrival_time;
-                        zero_judge = 0;
-                    }
-                    else {
-                        zero_judge += 1;
-                        if (zero_judge == 10) {
-                            this->lin = 0;
-                            this->ang = 0;
-                            zero_judge = 0;
-                        }
-                    }
-                }
-                if (this->latch == 3) {
-                    if (this->jyja_b4_arrival_time < this->jyja_arrival_time) {
-                        this->jyja_b4_arrival_time = this->jyja_arrival_time;
-                        zero_judge = 0;
-                    }
-                    else {
-                        zero_judge += 1;
-                        if (zero_judge == 20) {
-                            this->lin = 0;
-                            this->ang = 0;
-                            zero_judge = 0;
-                            this->latch = 0;
-                        }
-                    }
-                }
-                else if (this->latch == 1) {
-                    la = this->cv->controller();
-                    this->lin = la.linear_vel;
-                    this->ang = la.angular_vel;
-                }
-                else if (this->latch == 2) {
-                    la = this->ba->controller();
-                    this->lin = la.linear_vel;
-                    this->ang = la.angular_vel;
-                }
-
-                try {
-                    if (this->lin > 1.0) {
-                        this->lin = 1.0;
-                    }
-                    else if (this->lin < -1.0) {
-                        this->lin = -1.0;
-                    }
-                    this->segway_rmp->move(this->lin, this->ang);
-                } catch (std::exception& e) {
-                    std::string e_msg(e.what());
-                    ROS_ERROR("Error commanding Segway RMP: %s", e_msg.c_str());
-                    this->connected = false;
-                    this->disconnect();
-                }
-                ros::spinOnce();
-                loop_rate.sleep();
             }
             // ros::Duration(100).sleep();
         }
