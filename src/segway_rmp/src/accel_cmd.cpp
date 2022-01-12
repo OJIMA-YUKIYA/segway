@@ -53,6 +53,7 @@ public:
         // ss << "motors enabled: " << sss_msg.segway.motors_enabled << '\n';
 
         std::string str = ss.str();
+        std::cout << str << std::endl;
         char buf_ptr[500];
         for (int i = 0; i < str.length(); i++) {
             buf_ptr[i] = str.at(i);
