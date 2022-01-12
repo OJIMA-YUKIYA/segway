@@ -479,7 +479,7 @@ public:
         this->before_target_linear_vel = 0;
         this->linear_vel_feedback = 0;
         this->zero_judge = 0;
-        this->gain = 1.2;
+        this->gain = 1.5;
     }
 
     ~SegwayRMPNode() {
