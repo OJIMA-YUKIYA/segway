@@ -542,7 +542,7 @@ public:
             this->segway_rmp->setCurrentLimitScaleFactor(1.0);
             this->segway_rmp->setBalanceModeLocking(true);
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
-            this->segway_rmp->setControllerGainSchedule(segwayrmp::tall);
+            this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
             // ros::spin();
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
