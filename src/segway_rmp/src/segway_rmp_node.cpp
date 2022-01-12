@@ -590,7 +590,7 @@ public:
                 // ros::Duration(100).sleep();
 
                 // boost::mutex::scoped_lock lock(this->m_mutex);
-
+                ros::Duration(10).sleep();
             }
             // ros::Duration(100).sleep();
         }
@@ -866,15 +866,16 @@ public:
     }
 
     void cmd_accelCallback(const segway_rmp::AccelCmd& msg) {
-        if (!this->connected)
+        if (!this->connected) {
             return;
+        }
+        std::cout << "移動中・・・";
         boost::mutex::scoped_lock lock(m_mutex);
-        if (this->latch) {
+        if (this->latch == 1 || this->latch == 2) {
             return;
         }
         ba->setup(msg.T2, msg.a, msg.vel_limit, msg.reverse);
         this->latch = 2;
-        std::cout << "移動中・・・\n";
         return;
     }
 
@@ -899,13 +900,14 @@ public:
     }
 
     void jyja_callback(const segway_rmp::jyja& msg) {
-        if (this->connected && this->latch == 3) {
+        if (this->connected && (this->latch == 0 || this->latch == 3)) {
             // ROS_INFO("%lf, %lf", msg.leftright, msg.frontrear);
             // this->ang = msg.leftright;
             // this->lin = msg.frontrear;
             // if (this->lin < 0) {
             //     this->ang = - this->ang;
             // }
+            this->latch = 3;
             this->jyja_arrival_time = ros::Time::now();
             if (msg.frontrear >= 0) {
                 // this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.8 + msg.frontrear;
