@@ -4,9 +4,9 @@ cd libsegwayrmp
 if [ ! -e lib ]; then
     mkdir lib
 fi
-if [ $USER = 'tristar' ]; then
+if [ $(arch) = 'arm64' ]; then
     cp ./ftd2xx/linux/arm64/libftd2xx.a ./lib/
-elif [ $USER = 'ojima' ]; then
+elif [ $(arch) = 'x86_64' ]; then
     cp ./ftd2xx/linux/x64/libftd2xx.a ./lib/
 fi
 
