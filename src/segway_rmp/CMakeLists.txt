@@ -20,15 +20,15 @@ find_package(catkin REQUIRED
     message_generation
     nav_msgs
     roscpp
-    serial
+    # serial
     std_msgs
     tf
     sensor_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread)
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../../libsegwayrmp)
-find_package(libsegwayrmp REQUIRED)
+# set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../../libsegwayrmp)
+# find_package(libsegwayrmp REQUIRED)
 set(libsegwayrmp_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/../../libsegwayrmp/include)
 
 add_message_files(
