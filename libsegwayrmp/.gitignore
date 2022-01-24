@@ -11,7 +11,7 @@
 *.hwm*
 *.cfg
 .svn
-build
+/build
 bin
 /lib
 cpp

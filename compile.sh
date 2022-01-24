@@ -10,6 +10,10 @@ elif [ $(arch) = 'x86_64' ]; then
     cp ./ftd2xx/linux/x64/libftd2xx.a ./lib/
 fi
 
+cd serial
+make
+
+cd ..
 
 make
 cd .. && catkin_make
