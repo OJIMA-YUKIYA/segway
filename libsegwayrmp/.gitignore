@@ -13,7 +13,7 @@
 .svn
 build
 bin
-lib
+/lib
 cpp
 installed
 patched
