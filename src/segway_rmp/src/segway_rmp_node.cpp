@@ -982,18 +982,18 @@ private:
 
     int getParameters() {
         // Get Interface Type
-        n->param("interface_type", this->interface_type_str, std::string("serial"));
+        n->param("interface_type", this->interface_type_str, std::string("usb"));
         // Get Configurations based on Interface Type
         if (this->interface_type_str == "serial") {
             this->interface_type = segwayrmp::serial;
             n->param("serial_port", this->serial_port, std::string("/dev/ttyUSB0"));
         } else if (this->interface_type_str == "usb") {
             this->interface_type = segwayrmp::usb;
-            n->param("usb_selector", this->usb_selector, std::string("index"));
+            n->param("usb_selector", this->usb_selector, std::string("serial_number"));
             if (this->usb_selector == "index") {
                 n->param("usb_index", this->usb_index, 0);
             } else if (this->usb_selector == "serial_number") {
-                n->param("usb_serial_number", this->serial_number, std::string("00000000"));
+                n->param("usb_serial_number", this->serial_number, std::string("0403e729"));
                 if (this->serial_number == std::string("00000000")) {
                     ROS_WARN("The serial_number parameter is set to the default 00000000, which shouldn't work.");
                 }
