@@ -15,7 +15,6 @@ build
 bin
 lib
 cpp
-*/lib/*
 installed
 patched
 wiped
