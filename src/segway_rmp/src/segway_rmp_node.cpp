@@ -601,7 +601,7 @@ public:
                 // ros::Duration(100).sleep();
 
                 // boost::mutex::scoped_lock lock(this->m_mutex);
-                ros::Duration(10).sleep();
+                ros::Duration(5).sleep();
             }
             // ros::Duration(100).sleep();
         }
