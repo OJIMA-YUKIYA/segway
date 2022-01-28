@@ -748,6 +748,7 @@ public:
         this->sss_msg.segway.powerbase_battery = ss.powerbase_battery_voltage;
         this->sss_msg.segway.motors_enabled = (bool)(ss.motor_status);
         this->sss_msg.segway.ros_time = ros::Time::now().toSec();
+        this->sss_msg.segway.send_vel = this->lin;
 
         segway_status_pub.publish(this->sss_msg);
 

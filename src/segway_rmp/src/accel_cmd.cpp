@@ -317,7 +317,7 @@ void segway_status_callback(const segway_rmp::SegwayStatusStamped &sss_msg) {
     write(fd_write, buf_ptr, str.length());
     std::stringstream ss2;
     ss2 << "geve";
-    ss2 << std::fixed << std::setprecision(10) << sss_msg.segway.ros_time << ' ' << (sss_msg.segway.left_wheel_velocity + sss_msg.segway.right_wheel_velocity) / 2.0 << ' ' << sss_msg.segway.left_wheel_velocity << ' ' << sss_msg.segway.right_wheel_velocity << '\n';
+    ss2 << std::fixed << std::setprecision(10) << sss_msg.segway.ros_time << ' ' << sss_msg.segway.send_vel << ' ' << (sss_msg.segway.left_wheel_velocity + sss_msg.segway.right_wheel_velocity) / 2.0 << ' ' << sss_msg.segway.left_wheel_velocity << ' ' << sss_msg.segway.right_wheel_velocity << '\n';
     std::string str2 = ss2.str();
     char buf_ptr2[500];
     for (int i = 0; i < str2.length(); i++) {
