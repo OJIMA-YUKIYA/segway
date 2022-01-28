@@ -505,11 +505,17 @@ public:
         this->ba = new BanAccel(this->vel_pub, &(this->latch));
 
         // Setup keep alive timer
-        this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
+        // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
+        //
+        // ros::AsyncSpinner spinner(1);
+        // spinner.start();
 
+        // this->createdTimer = false;
+
+        this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
         ros::AsyncSpinner spinner(1);
         spinner.start();
-
+        this->createdTimer = true;
 
         this->odometry_reset_start_time = ros::Time::now();
 
@@ -535,14 +541,27 @@ public:
     bool spin() {
         if (ros::ok() && this->connected) {
             ROS_INFO("Segway RMP Ready.");
-            // this->segway_rmp->resetAllIntegrators();
+            //this->segway_rmp->resetAllIntegrators();
             this->segway_rmp->setMaxVelocityScaleFactor(1.0);
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setMaxTurnScaleFactor(1.0);
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setCurrentLimitScaleFactor(1.0);
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setBalanceModeLocking(true);
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
+            ros::Duration(0.05).sleep();
+            // if (!createdTimer) {
+            //     this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
+            //     ros::AsyncSpinner spinner(1);
+            //     spinner.start();
+            //     this->createdTimer = true;
+            // }
             // ros::spin();
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
@@ -911,12 +930,12 @@ public:
             this->latch = 3;
             this->jyja_arrival_time = ros::Time::now();
             if (msg.frontrear >= 0) {
-                // this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.8 + msg.frontrear;
+                // this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.1 + msg.frontrear;
                 this->lin = msg.frontrear;
                 this->ang = msg.leftright;
             }
             else {
-                // this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.8 + msg.frontrear;
+                // this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.1 + msg.frontrear;
                 this->lin = msg.frontrear;
                 this->ang = -msg.leftright;
             }
@@ -982,7 +1001,7 @@ private:
 
     int getParameters() {
         // Get Interface Type
-        n->param("interface_type", this->interface_type_str, std::string("usb"));
+        n->param("interface_type", this->interface_type_str, std::string("serial"));
         // Get Configurations based on Interface Type
         if (this->interface_type_str == "serial") {
             this->interface_type = segwayrmp::serial;
@@ -1197,6 +1216,8 @@ private:
     double initial_integrated_left_wheel_position;
     double initial_integrated_right_wheel_position;
     double initial_integrated_turn_position;
+
+    bool createdTimer;
 
     ChangeVelocity* cv;
     int latch;
