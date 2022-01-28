@@ -426,7 +426,7 @@ int main(int argc, char** argv) {
     accel_pub = n->advertise<segway_rmp::AccelCmd>("accel", 100);
     jyja_pub = n->advertise<segway_rmp::jyja>("jyja", 100);
     ros::Subscriber VelocityStatus_sub = n->subscribe("/segway_rmp_node/vel", 1000, &velocity_status_callback);
-    ros::Subscriber SegwayStatus_sub = n->subscribe("/segway_rmp_node/segway_status", 1000, &segway_status_callback);
+    ros::Subscriber SegwayStatus_sub = n->subscribe("/segway_rmp_node/segway_status", 1500, &segway_status_callback);
 
     while (ros::ok()) {
         fd_read = open(SERIAL_PATH, O_RDONLY); // SERIAL_PATH は serialPathConfig.h.in にて定義されている。
