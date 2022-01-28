@@ -541,21 +541,21 @@ public:
     bool spin() {
         if (ros::ok() && this->connected) {
             ROS_INFO("Segway RMP Ready.");
+            this->segway_rmp->setMaxVelocityScaleFactor(1.0);
+            ros::Duration(0.05).sleep();
+            this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
+            ros::Duration(0.05).sleep();
+            this->segway_rmp->setMaxTurnScaleFactor(1.0);
+            ros::Duration(0.05).sleep();
+            this->segway_rmp->setCurrentLimitScaleFactor(1.0);
+            ros::Duration(0.05).sleep();
+            this->segway_rmp->setBalanceModeLocking(true);
+            ros::Duration(0.05).sleep();
+            this->segway_rmp->setOperationalMode(segwayrmp::tractor);
+            ros::Duration(0.05).sleep();
+            this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
+            ros::Duration(0.05).sleep();
             while (ros::ok() && this->connected) {
-                this->segway_rmp->setMaxVelocityScaleFactor(1.0);
-                ros::Duration(0.05).sleep();
-                this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
-                ros::Duration(0.05).sleep();
-                this->segway_rmp->setMaxTurnScaleFactor(1.0);
-                ros::Duration(0.05).sleep();
-                this->segway_rmp->setCurrentLimitScaleFactor(1.0);
-                ros::Duration(0.05).sleep();
-                this->segway_rmp->setBalanceModeLocking(true);
-                ros::Duration(0.05).sleep();
-                this->segway_rmp->setOperationalMode(segwayrmp::tractor);
-                ros::Duration(0.05).sleep();
-                this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
-                ros::Duration(0.05).sleep();
                 // ros::Duration(1).sleep();
                 // while (ros::ok()) {
                 //     if (this->latch) {
