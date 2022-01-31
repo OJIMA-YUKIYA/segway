@@ -671,11 +671,11 @@ public:
             }
 
             try {
-                if (this->lin > 1.0) {
-                    this->lin = 1.0;
+                if (this->lin > 1.5) {
+                    this->lin = 1.5;
                 }
-                else if (this->lin < -1.0) {
-                    this->lin = -1.0;
+                else if (this->lin < -0.5) {
+                    this->lin = -0.5;
                 }
                 this->segway_rmp->move(this->lin, this->ang); // add offset 0.03
             } catch (std::exception& e) {
