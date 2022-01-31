@@ -897,6 +897,7 @@ public:
 
     void halt_callback(const std_msgs::String& msg) {
         this->segway_rmp->shutdown();
+        ros::Duration(0.3).sleep();
         exit(0);
     }
 
