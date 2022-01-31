@@ -665,7 +665,7 @@ public:
             }
             else if (this->latch == 2) {
                 la = this->ba->controller();
-                this->lin = la.linear_vel;
+                this->lin = la.linear_vel + 0.03;
                 // this->lin = (this->lin - this->linear_vel_feedback)*0.6 + la.linear_vel;
                 this->ang = la.angular_vel;
             }
@@ -677,7 +677,7 @@ public:
                 else if (this->lin < -1.0) {
                     this->lin = -1.0;
                 }
-                this->segway_rmp->move(this->lin + 0.03, this->ang); // add offset 0.03
+                this->segway_rmp->move(this->lin, this->ang); // add offset 0.03
             } catch (std::exception& e) {
                 std::string e_msg(e.what());
                 ROS_ERROR("Error commanding Segway RMP: %s", e_msg.c_str());
