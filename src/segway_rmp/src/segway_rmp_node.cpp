@@ -542,19 +542,19 @@ public:
         if (ros::ok() && this->connected) {
             ROS_INFO("Segway RMP Ready.");
             this->segway_rmp->setMaxVelocityScaleFactor(1.0);
-            ros::Duration(0.05).sleep();
+            ros::Duration(0.1).sleep();
             this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
-            ros::Duration(0.05).sleep();
+            ros::Duration(0.1).sleep();
             this->segway_rmp->setMaxTurnScaleFactor(1.0);
-            ros::Duration(0.05).sleep();
+            ros::Duration(0.1).sleep();
             this->segway_rmp->setCurrentLimitScaleFactor(1.0);
-            ros::Duration(0.05).sleep();
+            ros::Duration(0.1).sleep();
             this->segway_rmp->setBalanceModeLocking(true);
-            ros::Duration(0.05).sleep();
+            ros::Duration(0.1).sleep();
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
-            ros::Duration(0.05).sleep();
+            ros::Duration(0.1).sleep();
             this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
-            ros::Duration(0.05).sleep();
+            ros::Duration(0.1).sleep();
             this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
             ros::AsyncSpinner spinner(1);
             spinner.start();
