@@ -948,8 +948,11 @@ public:
     }
 
     void obstacle_callback(const std_msgs::String& msg) {
-        if (msg.data.size() > 0) {
+        if (msg.data == "obstacle") {
             this->obstacle_detected = true;
+        }
+        else {
+            this->obstacle_detected = false;
         }
     }
 
