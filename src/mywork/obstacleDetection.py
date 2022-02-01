@@ -55,7 +55,7 @@ try:
             pub.publish('clear')
 
         # images = np.hstack((bg_removed, color_image))
-        cv2.imshow('Frames', bg_removed)
+        # cv2.imshow('Frames', bg_removed)
 
         if cv2.waitKey(1) & 0xff == 27:
             break
