@@ -236,7 +236,8 @@ SegwayRMP::SegwayRMP(InterfaceType interface_type,
   debug_(defaultDebugMsgCallback),
   info_(defaultInfoMsgCallback),
   error_(defaultErrorMsgCallback),
-  handle_exception_(defaultExceptionCallback)
+  handle_exception_(defaultExceptionCallback),
+  no_data_from_segway(false)
 {
   this->segway_status_ = SegwayStatus::Ptr(new SegwayStatus());
   this->interface_type_ = interface_type;
@@ -753,20 +754,25 @@ void SegwayRMP::setExceptionCallback(ExceptionCallback exception_callback) {
 }
 
 void SegwayRMP::ReadContinuously_() {
-  Packet packet;
-  while (this->continuously_reading_) {
-    try {
-      this->rmp_io_->getPacket(packet);
-      this->ProcessPacket_(packet);
-    } catch (PacketRetrievalException &e) {
-      if (e.error_number() == 2) // Failed Checksum
-        this->error_("Checksum mismatch...");
-      else if (e.error_number() == 3) // No packet received
-        this->error_("No data from Segway...");
-      else
-        this->handle_exception_(e);
+    Packet packet;
+    while (this->continuously_reading_) {
+        try {
+            this->rmp_io_->getPacket(packet);
+            this->ProcessPacket_(packet);
+            this->no_data_from_segway = false;
+        } catch (PacketRetrievalException &e) {
+            if (e.error_number() == 2) { // Failed Checksum
+                this->error_("Checksum mismatch...");
+            }
+            else if (e.error_number() == 3) { // No packet received
+                this->error_("No data from Segway...");
+                this->no_data_from_segway = true;
+            }
+            else {
+                this->handle_exception_(e);
+            }
+        }
     }
-  }
 }
 
 void SegwayRMP::ExecuteCallbacks_() {

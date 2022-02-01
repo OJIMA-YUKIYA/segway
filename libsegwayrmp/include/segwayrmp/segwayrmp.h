@@ -733,6 +733,8 @@ public:
 
   int
   set_mps_to_counts(int mpsToCounts);
+
+  bool no_data_from_segway;
 private:
   // Disable Copy Constructor
   void operator=(const SegwayRMP &);

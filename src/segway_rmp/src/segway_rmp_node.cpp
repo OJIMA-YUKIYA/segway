@@ -481,6 +481,7 @@ public:
         this->zero_judge = 0;
         this->gain = 1.4;
         this->obstacle_detected = false;
+        this->no_data_from_segway = false;
     }
 
     ~SegwayRMPNode() {
@@ -623,8 +624,35 @@ public:
      */
     void keepAliveCallback(const ros::TimerEvent& e) {
 
-        if (!this->connected || this->reset_odometry)
-          return;
+        ROS_INFO("keepAliveCallback");
+
+        if (!this->connected || this->reset_odometry) {
+            return;
+        }
+
+        if (this->segway_rmp->no_data_from_segway) {
+            this->no_data_from_segway = true;
+            return;
+        }
+        else if (!this->segway_rmp->no_data_from_segway && this->no_data_from_segway) {
+            this->segway_rmp->setMaxVelocityScaleFactor(1.0);
+            ros::Duration(0.2).sleep();
+            this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
+            ros::Duration(0.2).sleep();
+            this->segway_rmp->setMaxTurnScaleFactor(1.0);
+            ros::Duration(0.2).sleep();
+            this->segway_rmp->setCurrentLimitScaleFactor(1.0);
+            ros::Duration(0.2).sleep();
+            this->segway_rmp->setBalanceModeLocking(true);
+            ros::Duration(0.2).sleep();
+            this->segway_rmp->setOperationalMode(segwayrmp::tractor);
+            ros::Duration(0.2).sleep();
+            this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
+            ros::Duration(0.2).sleep();
+            this->no_data_from_segway = false;
+        }
+
+
 
         if (ros::ok()) {
             boost::mutex::scoped_lock lock(this->m_mutex);
@@ -1243,6 +1271,8 @@ private:
 
     bool obstacle_detected;
     ros::Subscriber obstacle_sub;
+
+    bool no_data_from_segway;
 
 }; // class SegwayRMPNode
 
