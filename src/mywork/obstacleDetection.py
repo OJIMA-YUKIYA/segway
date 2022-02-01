@@ -54,7 +54,7 @@ try:
             print("{}".format(sum_detected))
             pub.publish('clear')
 
-        rospy.Duration(0.01).sleep()
+        rospy.Rate(100).sleep()
 
         # images = np.hstack((bg_removed, color_image))
         # cv2.imshow('Frames', bg_removed)
