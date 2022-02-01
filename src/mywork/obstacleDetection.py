@@ -47,11 +47,11 @@ try:
         #     print("検出 {}".format(white_pic))
         # else:
         #     print("{}".format(white_pic))
-        if sum_detected > 640 * 480 * 0.1:
+        if sum_detected > 640 * 480 * 0.15:
             pub.publish('obstacle')
-            print("検出 {}".format(sum_detected))
+            # print("検出 {}".format(sum_detected))
         else:
-            print("{}".format(sum_detected))
+            # print("{}".format(sum_detected))
             pub.publish('clear')
 
         rospy.Rate(100).sleep()
