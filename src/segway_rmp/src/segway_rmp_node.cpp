@@ -480,6 +480,7 @@ public:
         this->linear_vel_feedback = 0;
         this->zero_judge = 0;
         this->gain = 1.4;
+        this->obstacle_detected = false;
     }
 
     ~SegwayRMPNode() {
@@ -676,6 +677,10 @@ public:
                 }
                 else if (this->lin < -0.5) {
                     this->lin = -0.5;
+                }
+
+                if (this->obstacle_detected) {
+                    this->lin = 0;
                 }
                 this->segway_rmp->move(this->lin, this->ang); // add offset 0.03
             } catch (std::exception& e) {
@@ -942,6 +947,12 @@ public:
         return;
     }
 
+    void obstacle_callback(const std_msgs::String& msg) {
+        if (msg.data.size() > 0) {
+            this->obstacle_detected = true;
+        }
+    }
+
 private:
     // Function
     void setupROSComms() {
@@ -951,6 +962,7 @@ private:
         this->halt_sub = n->subscribe("/accel_cmd/halt", 1000, &SegwayRMPNode::halt_callback, this);
         this->joy_sub = n->subscribe("/joy", 100, &SegwayRMPNode::joy_callback, this);
         this->jyja_sub = n->subscribe("/accel_cmd/jyja", 100, &SegwayRMPNode::jyja_callback, this);
+        this->obstacle_sub = n->subscribe("/obstacle", 10, &SegwayRMPNode::obstacle_callback, this);
 
         // Advertise the SegwayStatusStamped
         this->segway_status_pub = n->advertise<segway_rmp::SegwayStatusStamped>("segway_status", 1000);
@@ -1225,6 +1237,10 @@ private:
 
     double v1, v2;
     double gain;
+
+    bool obstacle_detected;
+    ros::Subscriber obstacle_sub;
+
 }; // class SegwayRMPNode
 
 // Callback wrapper
