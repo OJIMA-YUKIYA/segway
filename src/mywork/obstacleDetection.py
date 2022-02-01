@@ -26,7 +26,7 @@ align = rs.align(align_to)
 threshold = (640*480*3)*0.95
 
 try:
-    while True:
+    while not rospy.is_shutdown():
         frames = pipeline.wait_for_frames()
         aligned_frames = align.process(frames)
         color_frame = aligned_frames.get_color_frame()
@@ -54,11 +54,12 @@ try:
             print("{}".format(sum_detected))
             pub.publish('clear')
 
+        rospy.Duration(0.01).sleep()
+
         # images = np.hstack((bg_removed, color_image))
         # cv2.imshow('Frames', bg_removed)
-
-        if cv2.waitKey(1) & 0xff == 27:
-            break
+        # if cv2.waitKey(1) & 0xff == 27:
+        #     break
 
 finally:
     # ストリーミング停止
