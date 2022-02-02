@@ -412,12 +412,15 @@ void SegwayRMP::move(float linear_velocity, float angular_velocity)
     short int lv = (short int)(linear_velocity * this->mps_to_counts_); // this->mps_to_counts_ == 332;
     short int av = (short int)(angular_velocity * this->dps_to_counts_);
 
+    // std::cout << lv << "\n";
+
     Packet packet;
 
     packet.id = 0x0413;
 
     packet.data[0] = (unsigned char)((lv & 0xFF00) >> 8);
     packet.data[1] = (unsigned char)(lv & 0x00FF);
+    // std::cout << ((short int) packet.data[0] << 8) + packet.data[1] << '\n';
     packet.data[2] = (unsigned char)((av & 0xFF00) >> 8);
     packet.data[3] = (unsigned char)(av & 0x00FF);
     packet.data[4] = 0x00;
