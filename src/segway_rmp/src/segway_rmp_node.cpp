@@ -624,7 +624,7 @@ public:
      */
     void keepAliveCallback(const ros::TimerEvent& e) {
 
-        ROS_INFO("keepAliveCallback");
+        // ROS_INFO("keepAliveCallback");
 
         if (!this->connected || this->reset_odometry) {
             return;
@@ -695,17 +695,17 @@ public:
             else if (this->latch == 2) {
                 la = this->ba->controller();
                 // this->lin = la.linear_vel + 0.03;
-                this->lin = (this->lin - this->linear_vel_feedback)*0.6 + la.linear_vel;
+                this->lin = (this->lin - this->linear_vel_feedback)*0.5 + la.linear_vel;
                 this->ang = la.angular_vel;
             }
 
             try {
-                if (this->lin > 1.5) {
-                    this->lin = 1.5;
-                }
-                else if (this->lin < -0.5) {
-                    this->lin = -0.5;
-                }
+                // if (this->lin > 1.5) {
+                //     this->lin = 1.5;
+                // }
+                // else if (this->lin < -0.5) {
+                //     // this->lin = -0.5;
+                // }
 
                 if (this->obstacle_detected) {
                     this->lin = 0;
@@ -785,6 +785,8 @@ public:
         this->sss_msg.segway.motors_enabled = (bool)(ss.motor_status);
         this->sss_msg.segway.ros_time = ros::Time::now().toSec();
         this->sss_msg.segway.send_vel = this->lin;
+        this->sss_msg.segway.target_vel = this->before_target_linear_vel;
+        this->sss_msg.segway.actual_velocity = (ss.left_wheel_speed + ss.right_wheel_speed)*0.5;
 
         segway_status_pub.publish(this->sss_msg);
 
@@ -960,16 +962,16 @@ public:
             this->latch = 3;
             this->jyja_arrival_time = ros::Time::now();
             if (msg.frontrear >= 0) {
-                // this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.1 + msg.frontrear;
-                this->lin = msg.frontrear;
+                this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.6 + msg.frontrear;
+                // this->lin = msg.frontrear;
                 this->ang = msg.leftright;
             }
             else {
-                // this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.1 + msg.frontrear;
-                this->lin = msg.frontrear;
+                this->lin = (this->before_target_linear_vel - this->linear_vel_feedback)*0.6 + msg.frontrear;
+                // this->lin = msg.frontrear;
                 this->ang = -msg.leftright;
             }
-            // this->before_target_linear_vel = msg.frontrear;
+            this->before_target_linear_vel = msg.frontrear;
             // ros::Duration(0.05).sleep();
         }
         return;

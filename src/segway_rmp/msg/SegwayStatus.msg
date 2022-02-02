@@ -16,8 +16,10 @@ float32 roll_angle                  # radians
 float32 roll_rate                   # radians/s
 float32 left_wheel_velocity         # meters/s
 float32 right_wheel_velocity        # meters/s
+float32 actual_velocity
 float32 accel
 float32 send_vel
+float32 target_vel
 float32 yaw_rate                    # radians/s
 float32 servo_frames                # frames/second
 float32 left_wheel_displacement     # meters
