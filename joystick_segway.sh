@@ -6,7 +6,7 @@ source /home/tristar/segway/devel/setup.bash
 ./momo_arm64.run --no-video-device
 source ./devel/setup.bash
 /opt/ros/melodic/bin/roscore &
-python3 ./src/mywork/obstacleDetection.py &
-/opt/ros/melodic/bin/rosrun joy joy_node &
-./devel/lib/segway_rmp/segway_rmp_node &
+# python3 ./src/mywork/obstacleDetection.py &
+# /opt/ros/melodic/bin/rosrun joy joy_node &
+# ./devel/lib/segway_rmp/segway_rmp_node &
 ./cmder.run
