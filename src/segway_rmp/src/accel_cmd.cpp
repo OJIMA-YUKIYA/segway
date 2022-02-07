@@ -379,8 +379,8 @@ void timer_callback(const ros::TimerEvent& e) {
 
     if (read_size == 2) {
         segway_rmp::jyja msg;
-        msg.leftright = (double)buf_ptr[0];
-        msg.frontrear = (double)buf_ptr[1];
+        msg.leftright = 50*(double)buf_ptr[0]/127.0;
+        msg.frontrear = 1.0*(double)buf_ptr[1]/127.0;
         jyja_pub.publish(msg);
     }
 
