@@ -558,8 +558,8 @@ public:
             this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
             ros::Duration(0.1).sleep();
             // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
-            // ros::AsyncSpinner spinner(1);
-            // spinner.start();
+            ros::AsyncSpinner spinner(1);
+            spinner.start();
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
                 // while (ros::ok()) {
