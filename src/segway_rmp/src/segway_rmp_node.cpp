@@ -623,6 +623,8 @@ public:
                     continue;
                 }
                 else if (!this->segway_rmp->no_data_from_segway && this->no_data_from_segway) {
+                    this->segway_rmp->resetAllIntegrators();
+                    ros::Duration(0.1).sleep();
                     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
                     // ROS_INFO("setMaxVelocityScaleFactor");
                     ros::Duration(0.1).sleep();
