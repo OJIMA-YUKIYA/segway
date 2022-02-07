@@ -649,7 +649,7 @@ public:
                 //     return;
                 // }
 
-                boost::mutex::scoped_lock lock(this->m_mutex);
+                // boost::mutex::scoped_lock lock(this->m_mutex);
 
                 Lavel la;
                 if (this->latch == 0) {
