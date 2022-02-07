@@ -557,9 +557,9 @@ public:
             ros::Duration(0.1).sleep();
             this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
             ros::Duration(0.1).sleep();
-            this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
-            ros::AsyncSpinner spinner(1);
-            spinner.start();
+            // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
+            // ros::AsyncSpinner spinner(1);
+            // spinner.start();
             while (ros::ok() && this->connected) {
                 // ros::Duration(1).sleep();
                 // while (ros::ok()) {
@@ -606,7 +606,113 @@ public:
                 // ros::Duration(100).sleep();
 
                 // boost::mutex::scoped_lock lock(this->m_mutex);
-                ros::Duration(5).sleep();
+
+
+
+
+                if (!this->connected || this->reset_odometry) {
+                    return;
+                }
+
+                ROS_INFO("keepAliveCallback");
+
+                if (this->segway_rmp->no_data_from_segway) {
+                    this->no_data_from_segway = true;
+                    return;
+                }
+                // else if (!this->segway_rmp->no_data_from_segway && this->no_data_from_segway) {
+                //     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
+                //     ROS_INFO("setMaxVelocityScaleFactor");
+                //     ros::Duration(0.05).sleep();
+                //     this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
+                //     ROS_INFO("setMaxAccelerationScaleFactor");
+                //     ros::Duration(0.05).sleep();
+                //     this->segway_rmp->setMaxTurnScaleFactor(1.0);
+                //     ROS_INFO("setMaxTurnScaleFactor");
+                //     ros::Duration(0.05).sleep();
+                //     this->segway_rmp->setCurrentLimitScaleFactor(1.0);
+                //     ROS_INFO("setCurrentLimitScaleFactor");
+                //     ros::Duration(0.05).sleep();
+                //     this->segway_rmp->setBalanceModeLocking(true);
+                //     ROS_INFO("setBalanceModeLocking");
+                //     ros::Duration(0.05).sleep();
+                //     this->segway_rmp->setOperationalMode(segwayrmp::tractor);
+                //     ROS_INFO("setOperationalMode");
+                //     ros::Duration(0.05).sleep();
+                //     this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
+                //     ROS_INFO("setControllerGainSchedule");
+                //     ros::Duration(0.05).sleep();
+                //     this->no_data_from_segway = false;
+                // }
+                //
+                // if (this->no_data_from_segway) {
+                //     return;
+                // }
+
+                boost::mutex::scoped_lock lock(this->m_mutex);
+
+                Lavel la;
+                if (this->latch == 0) {
+                    if (this->joy_b4_arrival_time < this->joy_arrival_time) {
+                        this->joy_b4_arrival_time = this->joy_arrival_time;
+                        zero_judge = 0;
+                    }
+                    else {
+                        zero_judge += 1;
+                        if (zero_judge == 10) {
+                            this->lin = 0;
+                            this->ang = 0;
+                            zero_judge = 0;
+                        }
+                    }
+                }
+                if (this->latch == 3) {
+                    if (this->jyja_b4_arrival_time < this->jyja_arrival_time) {
+                        this->jyja_b4_arrival_time = this->jyja_arrival_time;
+                        zero_judge = 0;
+                    }
+                    else {
+                        zero_judge += 1;
+                        if (zero_judge == 20) {
+                            this->lin = 0;
+                            this->ang = 0;
+                            zero_judge = 0;
+                            this->latch = 0;
+                        }
+                    }
+                }
+                else if (this->latch == 1) {
+                    la = this->cv->controller();
+                    this->lin = la.linear_vel;
+                    this->ang = la.angular_vel;
+                }
+                else if (this->latch == 2) {
+                    la = this->ba->controller();
+                    // this->lin = la.linear_vel + 0.03;
+                    this->lin = (this->lin - this->linear_vel_feedback)*0.5 + la.linear_vel;
+                    this->ang = la.angular_vel;
+                }
+
+                try {
+                    // if (this->lin > 1.5) {
+                    //     this->lin = 1.5;
+                    // }
+                    // else if (this->lin < -0.5) {
+                    //     // this->lin = -0.5;
+                    // }
+
+                    if (this->obstacle_detected) {
+                        this->lin = 0;
+                    }
+                    this->segway_rmp->move(this->lin, this->ang); // add offset 0.03
+                } catch (std::exception& e) {
+                    std::string e_msg(e.what());
+                    ROS_ERROR("Error commanding Segway RMP: %s", e_msg.c_str());
+                    this->connected = false;
+                    this->disconnect();
+                }
+
+                ros::Duration(0.05).sleep();
             }
             // ros::Duration(100).sleep();
         }
@@ -624,47 +730,46 @@ public:
      */
     void keepAliveCallback(const ros::TimerEvent& e) {
 
-        if (!this->connected || this->reset_odometry) {
-            return;
-        }
-
-        ROS_INFO("keepAliveCallback");
-
-        if (this->segway_rmp->no_data_from_segway) {
-            this->no_data_from_segway = true;
-            return;
-        }
-        else if (!this->segway_rmp->no_data_from_segway && this->no_data_from_segway) {
-            this->segway_rmp->setMaxVelocityScaleFactor(1.0);
-            ROS_INFO("setMaxVelocityScaleFactor\n");
-            ros::Duration(0.05).sleep();
-            this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
-            ROS_INFO("setMaxAccelerationScaleFactor");
-            ros::Duration(0.05).sleep();
-            this->segway_rmp->setMaxTurnScaleFactor(1.0);
-            ROS_INFO("setMaxTurnScaleFactor");
-            ros::Duration(0.05).sleep();
-            this->segway_rmp->setCurrentLimitScaleFactor(1.0);
-            ROS_INFO("setCurrentLimitScaleFactor");
-            ros::Duration(0.05).sleep();
-            this->segway_rmp->setBalanceModeLocking(true);
-            ROS_INFO("setBalanceModeLocking");
-            ros::Duration(0.05).sleep();
-            this->segway_rmp->setOperationalMode(segwayrmp::tractor);
-            ROS_INFO("setOperationalMode");
-            ros::Duration(0.05).sleep();
-            this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
-            ROS_INFO("setControllerGainSchedule");
-            ros::Duration(0.05).sleep();
-            this->no_data_from_segway = false;
-        }
-
-        if (this->no_data_from_segway) {
-            return;
-        }
-
-
         if (ros::ok()) {
+            if (!this->connected || this->reset_odometry) {
+                return;
+            }
+
+            ROS_INFO("keepAliveCallback");
+
+            if (this->segway_rmp->no_data_from_segway) {
+                this->no_data_from_segway = true;
+                return;
+            }
+            // else if (!this->segway_rmp->no_data_from_segway && this->no_data_from_segway) {
+            //     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
+            //     ROS_INFO("setMaxVelocityScaleFactor");
+            //     ros::Duration(0.05).sleep();
+            //     this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
+            //     ROS_INFO("setMaxAccelerationScaleFactor");
+            //     ros::Duration(0.05).sleep();
+            //     this->segway_rmp->setMaxTurnScaleFactor(1.0);
+            //     ROS_INFO("setMaxTurnScaleFactor");
+            //     ros::Duration(0.05).sleep();
+            //     this->segway_rmp->setCurrentLimitScaleFactor(1.0);
+            //     ROS_INFO("setCurrentLimitScaleFactor");
+            //     ros::Duration(0.05).sleep();
+            //     this->segway_rmp->setBalanceModeLocking(true);
+            //     ROS_INFO("setBalanceModeLocking");
+            //     ros::Duration(0.05).sleep();
+            //     this->segway_rmp->setOperationalMode(segwayrmp::tractor);
+            //     ROS_INFO("setOperationalMode");
+            //     ros::Duration(0.05).sleep();
+            //     this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
+            //     ROS_INFO("setControllerGainSchedule");
+            //     ros::Duration(0.05).sleep();
+            //     this->no_data_from_segway = false;
+            // }
+            //
+            // if (this->no_data_from_segway) {
+            //     return;
+            // }
+
             boost::mutex::scoped_lock lock(this->m_mutex);
 
             Lavel la;
