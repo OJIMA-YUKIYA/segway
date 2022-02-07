@@ -368,55 +368,63 @@ void velocity_status_callback(const segway_rmp::VelocityStatus& vs) {
 }
 
 void timer_callback(const ros::TimerEvent& e) {
-    int req_size = 100;
-    char buf_ptr[50];
-    int read_size = 0;
-    read_size = read(fd_read, buf_ptr, req_size);
+    int req_size = 10*sizeof(int8_t);
+    int8_t buf_ptr[10] = {
+        0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00
+    };
+    int read_size = read(fd_read, buf_ptr, req_size);
+    // printf("read_size: %d, %d, %d\n", read_size, buf_ptr[0], buf_ptr[1]);
 
-    if (read_size < 1) {
-        return;
-    }
-    buf_ptr[read_size] = '\0';
-    std::string str = std::string(buf_ptr);
-    // std::cout << "\nread_size: " << read_size << " message: " << str << '\n';
-    if (str.substr(0, 4) == "quit") {
-        std::cout << "accel_cmd を終了\n";
-        std_msgs::String msg;
-        msg.data = "quit";
-        halt_pub.publish(msg);
-        close(fd_write);
-        close(fd_read);
-        exit(1);
-    }
-    if (read_size > 4 && str.substr(0, 4) == "acce") {
-        segway_rmp::AccelCmd msg;
-        str = str.substr(4, str.size());
-        int i = str.find(',');
-        msg.T2 = std::stod(str.substr(0, i));
-        str = str.substr(i + 1, str.size());
-        i = str.find(',');
-        msg.a = std::stod(str.substr(0, i));
-        str = str.substr(i + 1, str.size());
-        i = str.find(',');
-        msg.vel_limit =  std::stod(str.substr(0, i));
-        msg.reverse = std::stoi(str.substr(i + 1, str.size()));
-        accel_pub.publish(msg);
-    }
-    else if (read_size > 4 && str.substr(0, 4) == "jyja") {
+
+    if (read_size == 2) {
         segway_rmp::jyja msg;
-        str = str.substr(4, str.size());
-        int i = str.find(',');
-        msg.leftright = std::stod(str.substr(0, i));
-        str = str.substr(i + 1, str.size());
-        i = str.find('j');
-        if (i > str.size()) {
-            msg.frontrear = std::stod(str.substr(0, str.size()));
-        }
-        else {
-            msg.frontrear = std::stod(str.substr(0, i));
-        }
+        msg.leftright = (double)buf_ptr[0];
+        msg.frontrear = (double)buf_ptr[1];
         jyja_pub.publish(msg);
     }
+
+    // buf_ptr[read_size] = '\0';
+    // std::string str = std::string(buf_ptr);
+    // // std::cout << "\nread_size: " << read_size << " message: " << str << '\n';
+    // if (str.substr(0, 4) == "quit") {
+    //     std::cout << "accel_cmd を終了\n";
+    //     std_msgs::String msg;
+    //     msg.data = "quit";
+    //     halt_pub.publish(msg);
+    //     close(fd_write);
+    //     close(fd_read);
+    //     exit(1);
+    // }
+    // if (read_size > 4 && str.substr(0, 4) == "acce") {
+    //     segway_rmp::AccelCmd msg;
+    //     str = str.substr(4, str.size());
+    //     int i = str.find(',');
+    //     msg.T2 = std::stod(str.substr(0, i));
+    //     str = str.substr(i + 1, str.size());
+    //     i = str.find(',');
+    //     msg.a = std::stod(str.substr(0, i));
+    //     str = str.substr(i + 1, str.size());
+    //     i = str.find(',');
+    //     msg.vel_limit =  std::stod(str.substr(0, i));
+    //     msg.reverse = std::stoi(str.substr(i + 1, str.size()));
+    //     accel_pub.publish(msg);
+    // }
+    // else if (read_size > 4 && str.substr(0, 4) == "jyja") {
+    //     segway_rmp::jyja msg;
+    //     str = str.substr(4, str.size());
+    //     int i = str.find(',');
+    //     msg.leftright = std::stod(str.substr(0, i));
+    //     str = str.substr(i + 1, str.size());
+    //     i = str.find('j');
+    //     if (i > str.size()) {
+    //         msg.frontrear = std::stod(str.substr(0, str.size()));
+    //     }
+    //     else {
+    //         msg.frontrear = std::stod(str.substr(0, i));
+    //     }
+    //     jyja_pub.publish(msg);
+    // }
 }
 
 int main(int argc, char** argv) {
@@ -441,7 +449,7 @@ int main(int argc, char** argv) {
         ros::Duration(3).sleep();
     }
 
-    ros::Timer timer =  n->createTimer(ros::Duration(1.0/40.0), &timer_callback);
+    ros::Timer timer =  n->createTimer(ros::Duration(1.0/100.0), &timer_callback);
     ros::AsyncSpinner spinner(1);
     spinner.start();
     while (ros::ok()) {

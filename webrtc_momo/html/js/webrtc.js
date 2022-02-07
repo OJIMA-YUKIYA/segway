@@ -534,14 +534,17 @@ function gameLoop() {
     let gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
     let gp = gamepads[0];
     if (gp != null) {
-        let ang = -50*gp.axes[0];
-        let lin = -1.0*gp.axes[3];
-        document.getElementById('leftright').value = ang;
-        document.getElementById('leftright_out').innerHTML = ang.toFixed(3);
+        let ang = -gp.axes[0];
+        let lin = -gp.axes[3];
+        document.getElementById('leftright').value = 50*ang;
+        document.getElementById('leftright_out').innerHTML = 50*ang.toFixed(3);
         document.getElementById('frontrear').value = lin;
         document.getElementById('frontrear_out').innerHTML = lin.toFixed(3);
         if (dataChannel != null) {
-            dataChannel.send(new TextEncoder().encode("jyja" + ang.toFixed(3) + "," + lin.toFixed(3) + "\n"));
+            // dataChannel.send(new TextEncoder().encode("jyja" + ang.toFixed(3) + "," + lin.toFixed(3) + "\n"));
+            // const buffer = new ArrayBuffer(1);
+            // console.log(buffer);
+            dataChannel.send(new Int8Array([(ang*127).toFixed(0), (lin*127).toFixed(0)]));
         }
     }
 }
