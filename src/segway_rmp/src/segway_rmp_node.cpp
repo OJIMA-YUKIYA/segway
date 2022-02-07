@@ -715,6 +715,8 @@ public:
      * This method is called at 20Hz.  Each time it sends a movement
      * command to the Segway RMP.
      */
+
+    /*
     void keepAliveCallback(const ros::TimerEvent& e) {
 
         if (ros::ok()) {
@@ -817,6 +819,7 @@ public:
             }
         }
     }
+    */
 
     void handleStatus(segwayrmp::SegwayStatus::Ptr &ss_ptr) {
         if (!this->connected)
