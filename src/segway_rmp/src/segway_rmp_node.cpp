@@ -652,7 +652,7 @@ public:
                 }
 
                 // boost::mutex::scoped_lock lock(this->m_mutex);
-                ROS_INFO("keepAliveCallback");
+                // ROS_INFO("keepAliveCallback");
 
                 Lavel la;
                 if (this->latch == 0) {
