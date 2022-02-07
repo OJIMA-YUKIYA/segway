@@ -544,7 +544,12 @@ function gameLoop() {
             // dataChannel.send(new TextEncoder().encode("jyja" + ang.toFixed(3) + "," + lin.toFixed(3) + "\n"));
             // const buffer = new ArrayBuffer(1);
             // console.log(buffer);
-            dataChannel.send(new Int8Array([(ang*127).toFixed(0), (lin*127).toFixed(0)]));
+            ang = 127*ang;
+            lin = 127*lin;
+            ang = (ang << 8) & 0xff00;
+            lin = lin & 0x00ff;
+            let send_value = new Int16Array([ang | lin]);
+            dataChannel.send(send_value);
         }
     }
 }

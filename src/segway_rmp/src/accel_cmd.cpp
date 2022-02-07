@@ -368,19 +368,20 @@ void velocity_status_callback(const segway_rmp::VelocityStatus& vs) {
 }
 
 void timer_callback(const ros::TimerEvent& e) {
-    int req_size = 10*sizeof(int8_t);
-    int8_t buf_ptr[10] = {
+    int req_size = 10*sizeof(int16_t);
+    int16_t buf_ptr[10] = {
         0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00
     };
     int read_size = read(fd_read, buf_ptr, req_size);
-    // printf("read_size: %d, %d, %d\n", read_size, buf_ptr[0], buf_ptr[1]);
+    // printf("read %d byte: %04x\n", read_size, buf_ptr[0]);
+    // printf("read %d byte: %d, %d\n", read_size, (int8_t)((buf_ptr[0] & 0xff00) >> 8), (int8_t)(buf_ptr[0] & 0x00ff));
 
 
     if (read_size == 2) {
         segway_rmp::jyja msg;
-        msg.leftright = 50*(double)buf_ptr[0]/127.0;
-        msg.frontrear = 1.0*(double)buf_ptr[1]/127.0;
+        msg.leftright = 50*(int8_t)((buf_ptr[0] & 0xff00) >> 8)/127.0;
+        msg.frontrear = 1.0*(int8_t)(buf_ptr[0] & 0x00ff)/127.0;
         jyja_pub.publish(msg);
     }
 
@@ -443,7 +444,7 @@ int main(int argc, char** argv) {
             std::cout << "./momo.run を実行してください。";
         }
         else {
-            std::cout << "momo のシリアルポート /home/tristar/segway/serial_out を発見\n";
+            std::cout << "momo のシリアルポート " << SERIAL_PATH << " を発見\n";
             break;
         }
         ros::Duration(3).sleep();
