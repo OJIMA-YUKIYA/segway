@@ -481,7 +481,6 @@ public:
         this->zero_judge = 0;
         this->gain = 1.4;
         this->obstacle_detected = false;
-        this->no_data_from_segway = false;
         this->motors_enabled = false;
         this->recover_motors_enabled = false;
     }
@@ -740,11 +739,7 @@ public:
             }
 
             ROS_INFO("keepAliveCallback");
-
-            if (this->segway_rmp->no_data_from_segway) {
-                this->no_data_from_segway = true;
-                return;
-            }
+            
             // else if (!this->segway_rmp->no_data_from_segway && this->no_data_from_segway) {
             //     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
             //     ROS_INFO("setMaxVelocityScaleFactor");
