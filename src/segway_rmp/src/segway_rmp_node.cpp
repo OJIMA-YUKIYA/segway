@@ -517,7 +517,7 @@ public:
         // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
         // ros::AsyncSpinner spinner(1);
         // spinner.start();
-        this->createdTimer = true;
+        // this->createdTimer = true;
 
         this->odometry_reset_start_time = ros::Time::now();
 
@@ -616,7 +616,7 @@ public:
                     continue;
                 }
 
-                ROS_INFO("keepAliveCallback");
+                // ROS_INFO("keepAliveCallback");
 
                 if (this->segway_rmp->no_data_from_segway) {
                     this->no_data_from_segway = true;
@@ -650,6 +650,7 @@ public:
                 }
 
                 // boost::mutex::scoped_lock lock(this->m_mutex);
+                ROS_INFO("keepAliveCallback");
 
                 Lavel la;
                 if (this->latch == 0) {
