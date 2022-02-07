@@ -621,10 +621,11 @@ public:
                 // ROS_INFO("keepAliveCallback");
 
                 if (!this->moters_enabled) {
-                    this->no_data_from_segway = true;
+
                     continue;
                 }
-                else {
+
+                if (this->recover_moters_enabled) {
                     this->segway_rmp->resetAllIntegrators();
                     ros::Duration(0.1).sleep();
                     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
@@ -648,7 +649,7 @@ public:
                     this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
                     // ROS_INFO("setControllerGainSchedule");
                     ros::Duration(0.1).sleep();
-                    this->no_data_from_segway = false;
+                    this->recover_moters_enabled = false;
                 }
 
                 // boost::mutex::scoped_lock lock(this->m_mutex);
@@ -910,7 +911,7 @@ public:
         if (!this->moters_enabled && (bool)(ss.moter_status)) {
             this->recover_moters_enabled = true;
         }
-        this->moters_enabled = (bool)(ss.moter_status);
+        this->motors_enabled = (bool)(ss.moter_status);
 
         segway_status_pub.publish(this->sss_msg);
 
@@ -1398,7 +1399,7 @@ private:
     bool obstacle_detected;
     ros::Subscriber obstacle_sub;
 
-    bool no_data_from_segway, moters_enabled, recover_moters_enabled;
+    bool moters_enabled, recover_moters_enabled;
 
 }; // class SegwayRMPNode
 
