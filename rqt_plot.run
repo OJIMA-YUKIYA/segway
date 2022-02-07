@@ -1,0 +1,3 @@
+#!/bin/bash
+
+rqt_plot /segway_rmp_node/segway_status/segway/actual_velocity /segway_rmp_node/segway_status/segway/send_vel /segway_rmp_node/segway_status/segway/target_vel
