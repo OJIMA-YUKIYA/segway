@@ -605,7 +605,7 @@ public:
                 // std::cout << "移動中・・・\n";
                 // ros::Duration(100).sleep();
 
-                // boost::mutex::scoped_lock lock(this->m_mutex);
+                boost::mutex::scoped_lock lock(this->m_mutex);
 
 
 
