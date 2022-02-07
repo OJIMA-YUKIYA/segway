@@ -656,13 +656,13 @@ public:
 
                 Lavel la;
                 if (this->latch == 0) {
-                    if (this->joy_arrival_time + 0.5 < ros::Time::now()) {
+                    if (ros::Time::now() - this->joy_arrival_time > 0.5) {
                         this->lin = 0;
                         this->ang = 0;
                     }
                 }
                 if (this->latch == 3) {
-                    if (this->jyja_arrival_time + 0.5 < ros::Time::now()) {
+                    if (ros::Time::now() - this->jyja_arrival_time > 0.5) {
                         this->lin = 0;
                         this->ang = 0;
                         this->latch = 0;
