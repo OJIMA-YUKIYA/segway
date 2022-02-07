@@ -545,21 +545,21 @@ public:
         if (ros::ok() && this->connected) {
             ROS_INFO("Segway RMP Ready.");
             this->segway_rmp->resetAllIntegrators();
-            ros::Duration(0.1).sleep();
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setMaxVelocityScaleFactor(1.0);
-            ros::Duration(0.1).sleep();
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
-            ros::Duration(0.1).sleep();
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setMaxTurnScaleFactor(1.0);
-            ros::Duration(0.1).sleep();
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setCurrentLimitScaleFactor(1.0);
-            ros::Duration(0.1).sleep();
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setBalanceModeLocking(true);
-            ros::Duration(0.1).sleep();
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setOperationalMode(segwayrmp::tractor);
-            ros::Duration(0.1).sleep();
+            ros::Duration(0.05).sleep();
             this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
-            ros::Duration(0.1).sleep();
+            ros::Duration(0.05).sleep();
             // this->keep_alive_timer = this->n->createTimer(ros::Duration(dt), &SegwayRMPNode::keepAliveCallback, this);
             ros::AsyncSpinner spinner(1);
             spinner.start();
@@ -626,28 +626,28 @@ public:
 
                 if (this->recover_motors_enabled) {
                     this->segway_rmp->resetAllIntegrators();
-                    ros::Duration(0.1).sleep();
+                    ros::Duration(0.05).sleep();
                     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
                     // ROS_INFO("setMaxVelocityScaleFactor");
-                    ros::Duration(0.1).sleep();
+                    ros::Duration(0.05).sleep();
                     this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
                     // ROS_INFO("setMaxAccelerationScaleFactor");
-                    ros::Duration(0.1).sleep();
+                    ros::Duration(0.05).sleep();
                     this->segway_rmp->setMaxTurnScaleFactor(1.0);
                     // ROS_INFO("setMaxTurnScaleFactor");
-                    ros::Duration(0.1).sleep();
+                    ros::Duration(0.05).sleep();
                     this->segway_rmp->setCurrentLimitScaleFactor(1.0);
                     // ROS_INFO("setCurrentLimitScaleFactor");
-                    ros::Duration(0.1).sleep();
+                    ros::Duration(0.05).sleep();
                     this->segway_rmp->setBalanceModeLocking(true);
                     // ROS_INFO("setBalanceModeLocking");
-                    ros::Duration(0.1).sleep();
+                    ros::Duration(0.05).sleep();
                     this->segway_rmp->setOperationalMode(segwayrmp::tractor);
                     // ROS_INFO("setOperationalMode");
-                    ros::Duration(0.1).sleep();
+                    ros::Duration(0.05).sleep();
                     this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
                     // ROS_INFO("setControllerGainSchedule");
-                    ros::Duration(0.1).sleep();
+                    ros::Duration(0.05).sleep();
                     this->recover_motors_enabled = false;
                 }
 
@@ -656,32 +656,16 @@ public:
 
                 Lavel la;
                 if (this->latch == 0) {
-                    if (this->joy_b4_arrival_time < this->joy_arrival_time) {
-                        this->joy_b4_arrival_time = this->joy_arrival_time;
-                        zero_judge = 0;
-                    }
-                    else {
-                        zero_judge += 1;
-                        if (zero_judge == 10) {
-                            this->lin = 0;
-                            this->ang = 0;
-                            zero_judge = 0;
-                        }
+                    if (this->joy_arrival_time + 0.5 < ros::Time::now()) {
+                        this->lin = 0;
+                        this->ang = 0;
                     }
                 }
                 if (this->latch == 3) {
-                    if (this->jyja_b4_arrival_time < this->jyja_arrival_time) {
-                        this->jyja_b4_arrival_time = this->jyja_arrival_time;
-                        zero_judge = 0;
-                    }
-                    else {
-                        zero_judge += 1;
-                        if (zero_judge == 20) {
-                            this->lin = 0;
-                            this->ang = 0;
-                            zero_judge = 0;
-                            this->latch = 0;
-                        }
+                    if (this->jyja_arrival_time + 0.5 < ros::Time::now()) {
+                        this->lin = 0;
+                        this->ang = 0;
+                        this->latch = 0;
                     }
                 }
                 else if (this->latch == 1) {
@@ -739,7 +723,7 @@ public:
             }
 
             ROS_INFO("keepAliveCallback");
-            
+
             // else if (!this->segway_rmp->no_data_from_segway && this->no_data_from_segway) {
             //     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
             //     ROS_INFO("setMaxVelocityScaleFactor");
@@ -1335,9 +1319,7 @@ private:
 
     int zero_judge;
     ros::Time joy_arrival_time;
-    ros::Time joy_b4_arrival_time;
     ros::Time jyja_arrival_time;
-    ros::Time jyja_b4_arrival_time;
 
     double target_linear_vel;  // The ideal linear velocity in m/s
     double target_angular_vel; // The ideal angular velocity in deg/s
