@@ -183,7 +183,7 @@ function prepareNewConnection() {
     let msg = new TextDecoder().decode(event.data);
     let str = msg.substr(4, msg.length);
     let show = "";
-    console.log("Got local Data Channel Message:", msg);
+    // console.log("Got local Data Channel Message:", msg);
     for (let i = 0; i < str.length; i++) {
         // console.log(str[i]);
         if (str[i] == "?") {

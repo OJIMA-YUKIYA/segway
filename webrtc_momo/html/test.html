@@ -113,12 +113,13 @@
         // });
 
         recvonly.on('message', (event) => {
-            let msg = new TextDecoder().decode(event.data);
-            console.log('sora recieve: ' + msg);
-            if (dataChannel == null) {
-                console.log("hello");
-            }
-            dataChannel.send(new TextEncoder().encode(msg));
+            // let msg = new TextDecoder().decode(event.data);
+            // console.log('sora recieve: ' + msg);
+            // if (dataChannel == null) {
+            //     console.log("hello");
+            // }
+            // dataChannel.send(new TextEncoder().encode(msg));
+            dataChannel.send(event.data);
         });
 
 
