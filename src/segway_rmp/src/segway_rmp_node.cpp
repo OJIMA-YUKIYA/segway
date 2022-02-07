@@ -624,7 +624,7 @@ public:
      */
     void keepAliveCallback(const ros::TimerEvent& e) {
 
-        if (!this->connected || this->reset_odometry || this->no_data_from_segway) {
+        if (!this->connected || this->reset_odometry) {
             return;
         }
 
@@ -659,6 +659,9 @@ public:
             this->no_data_from_segway = false;
         }
 
+        if (this->no_data_from_segway) {
+            return;
+        }
 
 
         if (ros::ok()) {
