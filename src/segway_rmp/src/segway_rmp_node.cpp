@@ -623,25 +623,25 @@ public:
                 else if (!this->segway_rmp->no_data_from_segway && this->no_data_from_segway) {
                     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
                     ROS_INFO("setMaxVelocityScaleFactor");
-                    ros::Duration(0.05).sleep();
+                    ros::Duration(0.1).sleep();
                     this->segway_rmp->setMaxAccelerationScaleFactor(1.0);
                     ROS_INFO("setMaxAccelerationScaleFactor");
-                    ros::Duration(0.05).sleep();
+                    ros::Duration(0.1).sleep();
                     this->segway_rmp->setMaxTurnScaleFactor(1.0);
                     ROS_INFO("setMaxTurnScaleFactor");
-                    ros::Duration(0.05).sleep();
+                    ros::Duration(0.1).sleep();
                     this->segway_rmp->setCurrentLimitScaleFactor(1.0);
                     ROS_INFO("setCurrentLimitScaleFactor");
-                    ros::Duration(0.05).sleep();
+                    ros::Duration(0.1).sleep();
                     this->segway_rmp->setBalanceModeLocking(true);
                     ROS_INFO("setBalanceModeLocking");
-                    ros::Duration(0.05).sleep();
+                    ros::Duration(0.1).sleep();
                     this->segway_rmp->setOperationalMode(segwayrmp::tractor);
                     ROS_INFO("setOperationalMode");
-                    ros::Duration(0.05).sleep();
+                    ros::Duration(0.1).sleep();
                     this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
                     ROS_INFO("setControllerGainSchedule");
-                    ros::Duration(0.05).sleep();
+                    ros::Duration(0.1).sleep();
                     this->no_data_from_segway = false;
                 }
 
