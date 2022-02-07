@@ -611,14 +611,14 @@ public:
 
 
                 if (!this->connected || this->reset_odometry) {
-                    break;
+                    continue;
                 }
 
                 ROS_INFO("keepAliveCallback");
 
                 if (this->segway_rmp->no_data_from_segway) {
                     this->no_data_from_segway = true;
-                    break;
+                    continue;
                 }
                 // else if (!this->segway_rmp->no_data_from_segway && this->no_data_from_segway) {
                 //     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
