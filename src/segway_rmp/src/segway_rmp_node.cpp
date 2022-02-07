@@ -482,8 +482,8 @@ public:
         this->gain = 1.4;
         this->obstacle_detected = false;
         this->no_data_from_segway = false;
-        this->moters_enabled = false;
-        this->recover_moters_enabled = false;
+        this->motors_enabled = false;
+        this->recover_motors_enabled = false;
     }
 
     ~SegwayRMPNode() {
@@ -620,12 +620,12 @@ public:
 
                 // ROS_INFO("keepAliveCallback");
 
-                if (!this->moters_enabled) {
+                if (!this->motors_enabled) {
 
                     continue;
                 }
 
-                if (this->recover_moters_enabled) {
+                if (this->recover_motors_enabled) {
                     this->segway_rmp->resetAllIntegrators();
                     ros::Duration(0.1).sleep();
                     this->segway_rmp->setMaxVelocityScaleFactor(1.0);
@@ -649,7 +649,7 @@ public:
                     this->segway_rmp->setControllerGainSchedule(segwayrmp::heavy);
                     // ROS_INFO("setControllerGainSchedule");
                     ros::Duration(0.1).sleep();
-                    this->recover_moters_enabled = false;
+                    this->recover_motors_enabled = false;
                 }
 
                 // boost::mutex::scoped_lock lock(this->m_mutex);
@@ -908,10 +908,10 @@ public:
         this->sss_msg.segway.actual_velocity = (ss.left_wheel_speed + ss.right_wheel_speed)*0.5;
 
 
-        if (!this->moters_enabled && (bool)(ss.moter_status)) {
-            this->recover_moters_enabled = true;
+        if (!this->motors_enabled && (bool)(ss.motor_status)) {
+            this->recover_motors_enabled = true;
         }
-        this->motors_enabled = (bool)(ss.moter_status);
+        this->motors_enabled = (bool)(ss.motor_status);
 
         segway_status_pub.publish(this->sss_msg);
 
@@ -1399,7 +1399,7 @@ private:
     bool obstacle_detected;
     ros::Subscriber obstacle_sub;
 
-    bool moters_enabled, recover_moters_enabled;
+    bool motors_enabled, recover_motors_enabled;
 
 }; // class SegwayRMPNode
 
