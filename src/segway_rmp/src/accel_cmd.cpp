@@ -368,7 +368,7 @@ void velocity_status_callback(const segway_rmp::VelocityStatus& vs) {
 }
 
 void timer_callback(const ros::TimerEvent& e) {
-    int req_size = 10*sizeof(int16_t);
+    int req_size = 100*sizeof(int16_t);
     int32_t buf_ptr[100] = {
         0
     };
