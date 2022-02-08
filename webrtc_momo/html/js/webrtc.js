@@ -449,28 +449,36 @@ function sendDataChannel() {
     // }
     // let target = document.getElementById("warning");
     // target.innerHTML = "";
-    let textData = "acce" + T2_Input.value + "," + accel_Input.value + "," + max_velocity_Input.value + ",";
+
+    // let textData = "acce" + T2_Input.value + "," + accel_Input.value + "," + max_velocity_Input.value + ",";
+    // if (reverse_Input[0].checked) {
+    //     textData = textData + 0;
+    // }
+    // else {
+    //     textData = textData + 1;
+    // }
+    // console.log("send: " + textData);
+    // if (textData.length == 0) {
+    //     return;
+    // }
+    // if (dataChannel == null || dataChannel.readyState != "open") {
+    //     // console.log("hello");
+    //     return;
+    // }
+    // dataChannel.send(new TextEncoder().encode(textData));
+
     if (reverse_Input[0].checked) {
-        textData = textData + 0;
+        dataChannel.send( new Int32Array([ 0xab000000 | (((127*T2_Input.value/20.0) << 12) & 0x00ff0000) | (((127*accel_Input.value/0.5) << 8 ) & 0x0000ff00) | ((127*max_velocity_Input.value/1.0) & 0x000000ff) ]));
     }
     else {
-        textData = textData + 1;
+        dataChannel.send( new Int32Array([ 0xaf000000 | (((127*T2_Input.value/20.0) << 12) & 0x00ff0000) | (((127*accel_Input.value/0.5) << 8 ) & 0x0000ff00) | ((127*max_velocity_Input.value/1.0) & 0x000000ff) ]));
     }
-    console.log("send: " + textData);
-    if (textData.length == 0) {
-        return;
-    }
-    if (dataChannel == null || dataChannel.readyState != "open") {
-        // console.log("hello");
-        return;
-    }
-    dataChannel.send(new TextEncoder().encode(textData));
     // accel_Input.value = "";
     // max_velocity_Input.value = "";
 }
 
 function quit_accel_cmd() {
-    dataChannel.send(new TextEncoder().encode("quit"));
+    dataChannel.send(new Int32Array([0x99999999]));
 }
 
 function handleTargetVelDownload() {
@@ -527,7 +535,7 @@ window.addEventListener("gamepadconnected", function(e) {
     console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
     e.gamepad.index, e.gamepad.id,
     e.gamepad.buttons.length, e.gamepad.axes.length);
-    setInterval(gameLoop, 1000.0/20.0);
+    setInterval(gameLoop, 1000.0/500.0);
     gameLoop();
 });
 function gameLoop() {
@@ -546,9 +554,9 @@ function gameLoop() {
             // console.log(buffer);
             ang = 127*ang;
             lin = 127*lin;
-            ang = (ang << 8) & 0xff00;
-            lin = lin & 0x00ff;
-            let send_value = new Int16Array([ang | lin]);
+            ang = (ang << 8) & 0x0000ff00;
+            lin = lin & 0x000000ff;
+            let send_value = new Int32Array([0x43000000 | ang | lin]);
             dataChannel.send(send_value);
         }
     }

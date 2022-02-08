@@ -369,20 +369,44 @@ void velocity_status_callback(const segway_rmp::VelocityStatus& vs) {
 
 void timer_callback(const ros::TimerEvent& e) {
     int req_size = 10*sizeof(int16_t);
-    int16_t buf_ptr[10] = {
-        0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00
+    int32_t buf_ptr[10] = {
+        0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0
     };
     int read_size = read(fd_read, buf_ptr, req_size);
-    // printf("read %d byte: %04x\n", read_size, buf_ptr[0]);
+    printf("read %d byte: %08x\n", read_size, buf_ptr[0]);
     // printf("read %d byte: %d, %d\n", read_size, (int8_t)((buf_ptr[0] & 0xff00) >> 8), (int8_t)(buf_ptr[0] & 0x00ff));
 
 
-    if (read_size == 2) {
-        segway_rmp::jyja msg;
-        msg.leftright = 50*(int8_t)((buf_ptr[0] & 0xff00) >> 8)/127.0;
-        msg.frontrear = 1.0*(int8_t)(buf_ptr[0] & 0x00ff)/127.0;
-        jyja_pub.publish(msg);
+    if (read_size == 4) {
+        if ((buf_ptr[0] & 0xffff0000) == 0x43000000) {
+            segway_rmp::jyja msg;
+            msg.leftright = 50*(int8_t)((buf_ptr[0] & 0x0000ff00) >> 8) /127.0;
+            msg.frontrear = 1.0*(int8_t)(buf_ptr[0] & 0x000000ff)/127.0;
+            jyja_pub.publish(msg);
+        }
+        else if ((buf_ptr[0] & 0xff000000) == 0xab000000) {
+            segway_rmp::AccelCmd msg;
+            msg.T2 = 20*(int8_t)((buf_ptr[0] & 0x00ff0000) >> 12)/127.0;
+            msg.a = 0.5*(int8_t)((buf_ptr[0] & 0x0000ff00) >> 8) /127.0;
+            msg.vel_limit = 1.0*(int8_t)(buf_ptr[0] & 0x000000ff)/127.0;
+            msg.reverse = 1;
+            accel_pub.publish(msg);
+        }
+        else if ((buf_ptr[0] & 0xff000000) == 0xaf000000) {
+            segway_rmp::AccelCmd msg;
+            msg.T2 = 20*(int8_t)((buf_ptr[0] & 0x00ff0000) >> 12)/127.0;
+            msg.a = 0.5*(int8_t)((buf_ptr[0] & 0x0000ff00) >> 8) /127.0;
+            msg.vel_limit = 1.0*(int8_t)(buf_ptr[0] & 0x000000ff)/127.0;
+            msg.reverse = 0;
+            accel_pub.publish(msg);
+        }
+        else if (buf_ptr[0] == 0x99999999) {
+            std::cout << "segway_rmp_node を終了\n";
+            std_msgs::String msg;
+            msg.data = "quit";
+            halt_pub.publish(msg);
+        }
     }
 
     // buf_ptr[read_size] = '\0';
@@ -450,7 +474,7 @@ int main(int argc, char** argv) {
         ros::Duration(3).sleep();
     }
 
-    ros::Timer timer =  n->createTimer(ros::Duration(1.0/100.0), &timer_callback);
+    ros::Timer timer =  n->createTimer(ros::Duration(1.0/1000.0), &timer_callback);
     ros::AsyncSpinner spinner(1);
     spinner.start();
     while (ros::ok()) {
