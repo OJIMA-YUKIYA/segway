@@ -369,9 +369,8 @@ void velocity_status_callback(const segway_rmp::VelocityStatus& vs) {
 
 void timer_callback(const ros::TimerEvent& e) {
     int req_size = 10*sizeof(int16_t);
-    int32_t buf_ptr[10] = {
-        0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0
+    int32_t buf_ptr[100] = {
+        0
     };
     int read_size = read(fd_read, buf_ptr, req_size);
     printf("read %d byte: %08x\n", read_size, buf_ptr[0]);
