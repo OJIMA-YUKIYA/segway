@@ -473,11 +473,11 @@ int main(int argc, char** argv) {
         ros::Duration(3).sleep();
     }
 
-    ros::Timer timer =  n->createTimer(ros::Duration(1.0/1000.0), &timer_callback);
+    ros::Timer timer =  n->createTimer(ros::Duration(1.0/40.0), &timer_callback);
     ros::AsyncSpinner spinner(1);
     spinner.start();
     while (ros::ok()) {
-        ros::Duration(0.001).sleep();
+        ros::Duration(0.01).sleep();
         ros::spinOnce();
     }
     return 0;
